@@ -42,6 +42,20 @@ void Wanderer::scanCallback(const sensor_msgs::LaserScan::ConstPtr& scan)
 	}
 
 	ROS_INFO_STREAM("Closest range: " << closestRange);
+
+	/*if (closestRange < MIN_PROXIMITY_RANGE_M) {
+		ROS_INFO("Rotate!");
+
+		double rotation_amplitude = rand() / 100.0;
+
+		std_msgs::String msg;
+		std::stringstream converter;
+		converter << next_rotation_direction << " - " << rotation_amplitude;
+		msg.data = converter.str();
+		ROS_INFO("%s", msg.data.c_str());
+
+		rotate(next_rotation_direction, rotation_amplitude);
+	}*/
 }
 
 void Wanderer::rotate(int direction, double amplitude){
