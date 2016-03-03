@@ -3,8 +3,6 @@
 
 Wanderer::Wanderer()
 {
-	keepMoving = true;
-
 	// Advertise a new publisher for the simulated robot's velocity command topic
 	commandPub = node.advertise<geometry_msgs::Twist>("cmd_vel", 10);
 
@@ -36,9 +34,19 @@ void Wanderer::scanCallback(const sensor_msgs::LaserScan::ConstPtr& scan)
 	ROS_INFO_STREAM("Closest range: " << closestRange);
 
 	if (closestRange < MIN_PROXIMITY_RANGE_M) {
-		ROS_INFO("Stop!");
-		keepMoving = false;
+		ROS_INFO("Rotate!");
+		rotate(1);
 	}
+}
+
+void Wanderer::rotate(double time){
+	ros::Rate rate(1/time);
+	geometry_msgs::Twist msg; // The default constructor will set all commands to 0
+	msg.angular.z=ROTATION_SPEED;
+	commandPub.publish(msg);
+	rate.sleep();
+	msg.angular.x=0;
+	commandPub.publish(msg);
 }
 
 void Wanderer::startMoving()
@@ -47,7 +55,7 @@ void Wanderer::startMoving()
 	ROS_INFO("Start moving");
 
 	// Keep spinning loop until user presses Ctrl+C or the robot got too close to an obstacle
-	while (ros::ok() && keepMoving) {
+	while (ros::ok()) {
 		moveForward();
 		ros::spinOnce(); // Need to call this function often to allow ROS to process incoming messages
 		rate.sleep();
