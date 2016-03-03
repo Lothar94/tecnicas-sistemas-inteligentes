@@ -8,7 +8,7 @@
 const double Wanderer::FORWARD_SPEED_MPS = 2;
 const double Wanderer::MIN_SCAN_ANGLE_RAD = -30.0/180*M_PI;
 const double Wanderer::MAX_SCAN_ANGLE_RAD = +30.0/180*M_PI;
-const float Wanderer::MIN_PROXIMITY_RANGE_M = 0.5;
+const float Wanderer::MIN_PROXIMITY_RANGE_M = 0.6; //0.5
 
 Wanderer::Wanderer() :next_rotation_direction(1), closestRange(MIN_PROXIMITY_RANGE_M+1)
 {
