@@ -8,3 +8,9 @@ build/
 devel/lib/
 devel/share/
 devel/
+1-random-walk/src/CMakeLists.txt
+1-random-walk/src/setup.sh
+1-random-walk/devel/.catkin
+1-random-walk/devel/.rosinstall
+1-random-walk/devel/_setup_util.py
+
