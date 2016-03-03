@@ -1,2 +1,2 @@
-
+random_walk
 -DPYTHON_EXECUTABLE=/usr/bin/python2 -DPYTHON_INCLUDE_DIR=/usr/include/python2.7 -DPYTHON_LIBRARY=/usr/lib/libpython2.7.so -DCATKIN_DEVEL_PREFIX=/home/fdavidcl/2/TSI/Practicas/tecnicas-sistemas-inteligentes/1-random-walk/devel -DCMAKE_INSTALL_PREFIX=/home/fdavidcl/2/TSI/Practicas/tecnicas-sistemas-inteligentes/1-random-walk/install -G Unix Makefiles

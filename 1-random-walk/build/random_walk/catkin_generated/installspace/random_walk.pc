@@ -1,0 +1,8 @@
+prefix=/home/fdavidcl/2/TSI/Practicas/tecnicas-sistemas-inteligentes/1-random-walk/install
+
+Name: random_walk
+Description: Description of random_walk
+Version: 0.0.0
+Cflags: 
+Libs: -L/home/fdavidcl/2/TSI/Practicas/tecnicas-sistemas-inteligentes/1-random-walk/install/lib 
+Requires: 
