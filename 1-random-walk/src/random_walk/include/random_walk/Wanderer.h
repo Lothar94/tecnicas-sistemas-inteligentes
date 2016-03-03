@@ -9,7 +9,6 @@ class Wanderer
 public:
 	// Tunable parameters
 	const static double FORWARD_SPEED_MPS;
-	const static double ROTATION_SPEED;
 	const static double MIN_SCAN_ANGLE_RAD;
 	const static double MAX_SCAN_ANGLE_RAD;
 	const static float MIN_PROXIMITY_RANGE_M; // Should be smaller than sensor_msgs::LaserScan::range_max
@@ -21,6 +20,7 @@ private:
 	ros::NodeHandle node;
 	ros::Publisher commandPub; // Publisher to the simulated robot's velocity command topic
 	ros::Subscriber laserSub; // Subscriber to the simulated robot's laser scan topic
+	int next_rotation_direction;
 
 	void moveForward();
 	void scanCallback(const sensor_msgs::LaserScan::ConstPtr& scan);
