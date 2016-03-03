@@ -100,9 +100,9 @@ find_package(catkin REQUIRED COMPONENTS
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
+#  INCLUDE_DIRS include include/${PACKAGE_NAME}
 #  LIBRARIES random_walk
-#  CATKIN_DEPENDS roscpp rospy std_msgs
+  CATKIN_DEPENDS roscpp rospy std_msgs stage_ros
 #  DEPENDS system_lib
 )
 
@@ -114,29 +114,23 @@ catkin_package(
 ## Your package locations should be listed before other locations
 # include_directories(include)
 include_directories(
+  include/
+  include/random_walk/
   ${catkin_INCLUDE_DIRS}
 )
 
-## Declare a C++ library
-# add_library(random_walk
-#   src/${PROJECT_NAME}/random_walk.cpp
-# )
-
-## Add cmake target dependencies of the library
-## as an example, code may need to be generated before libraries
-## either from message generation or dynamic reconfigure
-# add_dependencies(random_walk ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-
 ## Declare a C++ executable
 # add_executable(random_walk_node src/random_walk_node.cpp)
-add_executable(move_forward src/move_forward.cpp)
+add_executable(stopper src/Stopper.cpp src/run_stopper.cpp)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
-# add_dependencies(random_walk_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+# add_dependencies(run_stopper ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+# add_dependencies(run_stopper include/${PROJECT_NAME}/Stopper.h)
+# add_dependencies(run_stopper src/Stopper.cpp)
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(move_forward
+target_link_libraries(stopper
   ${catkin_LIBRARIES}
 )
 

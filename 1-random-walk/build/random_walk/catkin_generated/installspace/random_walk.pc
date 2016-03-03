@@ -5,4 +5,4 @@ Description: Description of random_walk
 Version: 0.0.0
 Cflags: 
 Libs: -L/home/fdavidcl/2/TSI/Practicas/tecnicas-sistemas-inteligentes/1-random-walk/install/lib 
-Requires: 
+Requires: roscpp rospy std_msgs stage_ros
