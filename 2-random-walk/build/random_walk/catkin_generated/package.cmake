@@ -1,0 +1,7 @@
+set(_CATKIN_CURRENT_PACKAGE "random_walk")
+set(random_walk_MAINTAINER "SGrupo2.5 <grupo2@martes.tsi>")
+set(random_walk_DEPRECATED "")
+set(random_walk_VERSION "0.0.0")
+set(random_walk_BUILD_DEPENDS "roscpp" "rospy" "std_msgs")
+set(random_walk_RUN_DEPENDS "roscpp" "rospy" "std_msgs" "stage_ros")
+set(random_walk_BUILDTOOL_DEPENDS "catkin")

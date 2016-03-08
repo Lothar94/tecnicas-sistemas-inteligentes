@@ -1,0 +1,8 @@
+prefix=/home/josecarlos/UGR/TSI/tecnicas-sistemas-inteligentes/1-random-walk/devel
+
+Name: random_walk
+Description: Description of random_walk
+Version: 0.0.0
+Cflags: 
+Libs: -L/home/josecarlos/UGR/TSI/tecnicas-sistemas-inteligentes/1-random-walk/devel/lib 
+Requires: roscpp rospy std_msgs stage_ros
