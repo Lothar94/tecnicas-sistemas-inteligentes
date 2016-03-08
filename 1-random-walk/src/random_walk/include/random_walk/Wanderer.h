@@ -21,6 +21,7 @@ private:
 	ros::Publisher commandPub; // Publisher to the simulated robot's velocity command topic
 	ros::Subscriber laserSub; // Subscriber to the simulated robot's laser scan topic
 	int next_rotation_direction;
+	float min_distance_to_wall;
 	float closestRange;
 
 	void moveForward();

@@ -10,8 +10,12 @@ const double Wanderer::MIN_SCAN_ANGLE_RAD = -30.0/180*M_PI;
 const double Wanderer::MAX_SCAN_ANGLE_RAD = +30.0/180*M_PI;
 const float Wanderer::MIN_PROXIMITY_RANGE_M = 0.6; //0.5
 
-Wanderer::Wanderer() :next_rotation_direction(1), closestRange(MIN_PROXIMITY_RANGE_M+1)
+Wanderer::Wanderer() :next_rotation_direction(1), closestRange(MIN_PROXIMITY_RANGE_M+1), min_distance_to_wall(MIN_PROXIMITY_RANGE_M)
 {
+	// Get parameters
+	if (node.hasParam("min_distance_to_wall"))
+		node.getParam("min_distance_to_wall", min_distance_to_wall);
+
 	// Advertise a new publisher for the simulated robot's velocity command topic
 	commandPub = node.advertise<geometry_msgs::Twist>("cmd_vel", 10);
 
@@ -74,7 +78,7 @@ void Wanderer::startMoving()
 
 	// Keep spinning loop until user presses Ctrl+C or the robot got too close to an obstacle
 	while (ros::ok()) {
-		if (closestRange < MIN_PROXIMITY_RANGE_M)
+		if (closestRange < min_distance_to_wall)
 			turnAround();
 		else
 			moveForward();
