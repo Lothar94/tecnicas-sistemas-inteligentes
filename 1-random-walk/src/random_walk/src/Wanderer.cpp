@@ -13,8 +13,12 @@ const float Wanderer::MIN_PROXIMITY_RANGE_M = 0.6; //0.5
 Wanderer::Wanderer() :next_rotation_direction(1), closestRange(MIN_PROXIMITY_RANGE_M+1), min_distance_to_wall(MIN_PROXIMITY_RANGE_M)
 {
 	// Get parameters
-	if (node.hasParam("min_distance_to_wall"))
+	if (node.hasParam("min_distance_to_wall")){
 		node.getParam("min_distance_to_wall", min_distance_to_wall);
+	// If it's smaller than zero, change it. 
+		if (min_distance_to_wall < 0)
+			min_distance_to_wall = MIN_PROXIMITY_RANGE_M;
+	}
 
 	// Advertise a new publisher for the simulated robot's velocity command topic
 	commandPub = node.advertise<geometry_msgs::Twist>("cmd_vel", 10);
