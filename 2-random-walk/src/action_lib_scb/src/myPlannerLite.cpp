@@ -2,11 +2,41 @@
 #include "geometry_msgs/Twist.h"
 #include <tf/transform_datatypes.h> //para transformar quaternions en ángulos, necesario en odomCallBack
 
-LocalPlanner::LocalPlanner(){
+LocalPlanner::LocalPlanner() :LocalPlanner(0.01, 3.5, 0.05, 0.02, 1.0, 0.01){
+  /*
   //Parámetros de configuración (radio, spread, alpha) del campo actractivo.
   CAMPOATT.radius = 0.01; CAMPOATT.spread = 3.5; CAMPOATT.intens = 0.05;
   //Parámetros de configuración (radio, spread, beta)del campo repulsivo.
   CAMPOREP.radius = 0.02; CAMPOREP.spread = 1.0; CAMPOREP.intens = 0.01;
+  //Posición del objetivo
+  posGoal.x = posGoal.y = 0;
+  //Posición actual
+  pos.x = pos.y = 0;
+  //Angulo (en radianes) de orientación del robot
+  yaw = 0;
+  //Componente del campo atractivo
+  deltaGoal.x = deltaGoal.y = 0;
+  //Componente del campo repulsivo (para todos los obstáculos)
+  deltaObst.x = deltaObst.y = 0;
+  //Componente total
+  delta.x = delta.y = 0;
+  //Velocidad angular
+  v_angular = v_lineal = 0;
+
+  //Advertise a new publisher for the simulated robot's velocity command topic
+  commandPub = node.advertise<geometry_msgs::Twist>("cmd_vel", 10);
+
+  //Subscribe to the simulated robot's laser scan topic
+  laserSub = node.subscribe("base_scan", 1, &LocalPlanner::scanCallBack, this);
+  odomSub = node.subscribe("base_pose_ground_truth", 1, &LocalPlanner::odomCallBack, this);
+  */
+}
+
+LocalPlanner::LocalPlanner(double att_r, double att_s, double att_i, double rep_r, double rep_s, double rep_i){
+  //Parámetros de configuración (radio, spread, alpha) del campo actractivo.
+  CAMPOATT.radius = att_r; CAMPOATT.spread = att_s; CAMPOATT.intens = att_i;
+  //Parámetros de configuración (radio, spread, beta)del campo repulsivo.
+  CAMPOREP.radius = rep_r; CAMPOREP.spread = rep_s; CAMPOREP.intens = rep_i;
   //Posición del objetivo
   posGoal.x = posGoal.y = 0;
   //Posición actual
@@ -68,15 +98,15 @@ void LocalPlanner::setDeltaAtractivo(){
   if (dist < CAMPOATT.radius) {
     deltaGoal.x = deltaGoal.y = 0;
   } else if (dist < CAMPOATT.spread + CAMPOATT.radius) {
-    deltaGoal.x = CAMPOATT.intens * (dist - CAMPOATT.radius) * cos(theta);
-    deltaGoal.y = CAMPOATT.intens * (dist - CAMPOATT.radius) * sin(theta);
+    deltaGoal.x = CAMPOATT.intens * (dist - CAMPOATT.radius) * cos(angulo);
+    deltaGoal.y = CAMPOATT.intens * (dist - CAMPOATT.radius) * sin(angulo);
   } else {
-    deltaGoal.x = CAMPOATT.intens * CAMPOATT.spread * cos(theta);
-    deltaGoal.y = CAMPOATT.intens * CAMPOATT.spread * sin(theta);
+    deltaGoal.x = CAMPOATT.intens * CAMPOATT.spread * cos(angulo);
+    deltaGoal.y = CAMPOATT.intens * CAMPOATT.spread * sin(angulo);
   }
 }
 
-// recibe una posición de un obstáculo y calcula el componente repulsivo para ese obstáculo.
+// Recibe una posición de un obstáculo y calcula el componente repulsivo para ese obstáculo.
 // Devuelve los valores en deltaO.x y deltaO.y
 void LocalPlanner::getOneDeltaRepulsivo(Tupla obstaculo, Tupla &deltaO){
   double dist = distancia(obstaculo, pos);
