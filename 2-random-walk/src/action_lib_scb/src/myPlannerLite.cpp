@@ -28,24 +28,6 @@ LocalPlanner::LocalPlanner(){
   //Subscribe to the simulated robot's laser scan topic
   laserSub = node.subscribe("base_scan", 1, &LocalPlanner::scanCallBack, this);
   odomSub = node.subscribe("base_pose_ground_truth", 1, &LocalPlanner::odomCallBack, this);
-
-  // Parámetros de configuración de campos atractivos y repulsivos.
-    CAMPOATT.radius = 0.01; CAMPOATT.spread = 3.5; CAMPOATT.intens = 0.05;
-    CAMPOREP.radius = 0.02; CAMPOREP.spread = 1.0; CAMPOREP.intens = 0.01;
-    posGoal.x = posGoal.y = 0;  //Posición del objetivo
-    pos.x = pos.y = 0;      //Posición actual
-    yaw = 0;     //Angulo (en radianes) de orientación del robot
-    deltaGoal.x = deltaGoal.y = 0;//Componente del campo atractivo
-    deltaObst.x = deltaObst.y = 0;//Componente del campo repulsivo (para todos los obstáculos)
-    delta.x = delta.y = 0;    //Componente total
-    v_angular = v_lineal = 0; //velocidad angular
-
-	// Advertise a new publisher for the simulated robot's velocity command topic
-	commandPub = node.advertise<geometry_msgs::Twist>("cmd_vel", 10);
-
-	// Subscribe to the simulated robot's laser scan topic
-	laserSub = node.subscribe("base_scan", 1, &LocalPlanner::scanCallBack, this);
-  odomSub =  node.subscribe("base_pose_ground_truth", 1, &LocalPlanner::odomCallBack, this);
 }
 
 void LocalPlanner::odomCallBack(const nav_msgs::Odometry::ConstPtr& msg){
@@ -168,16 +150,18 @@ void LocalPlanner::setv_Angular(){
   double angulo = atan2(delta.y, delta.x);
   double diferencia_normalizada = normalize(angulo-yaw);
 
-  if ((0 <= diferencia_normalizada) and (diferencia_normalizada <= M_PI))
+  if ((0 <= diferencia_normalizada) and (diferencia_normalizada <= M_PI)){
     if (diferencia_normalizada > V_ANGULAR_CTE)
       v_angular = V_ANGULAR_CTE;
     else
       v_angular = (diferencia_normalizada < EPSILON_ANGULAR)? 0: diferencia_normalizada;
-  else
+  }
+  else{
     if (diferencia_normalizada < (-1)*V_ANGULAR_CTE)
       v_angular = (-1)*V_ANGULAR_CTE;
     else
       v_angular = (diferencia_normalizada > (-1)*EPSILON_ANGULAR)? 0: diferencia_normalizada;
+  }
 }
 
 //Calcula la velocidad lineal
@@ -188,13 +172,4 @@ void LocalPlanner::setv_Lineal(){
 //Determina que el objetivo se ha alcanzado cuando ambas velocidades son 0.
 bool LocalPlanner::goalAchieved(){
   return (v_angular == 0 and v_lineal == 0);
-
-  //calcula la velocidad lineal
-void LocalPlanner::setv_Lineal(){
-    v_lineal =  sqrt(delta.x*delta.x + delta.y*delta.y);
-}
-
-//determina que el objetivo se ha alcanzado cuando ambas velocidades son 0.
-bool LocalPlanner::goalAchieved(){
-    return (v_angular == 0 and v_lineal == 0);
 }
