@@ -75,9 +75,22 @@ void LocalPlanner::setDeltaAtractivo() {
 
 }
 
-void LocalPlanner::getOneDeltaRepulsivo(Tupla posObst, Tupla &deltaO){
 // recibe una posición de un obstáculo y calcula el componente repulsivo para ese obstáculo.
 // Devuelve los valores en deltaO.x y deltaO.y
+void LocalPlanner::getOneDeltaRepulsivo(Tupla obstaculo, Tupla &deltaO){
+  double dist = distancia(obstaculo, pos);
+  double angulo = atan2(obstaculo.y - pos.y, obstaculo.x - pos.x);
+
+  // Distinguimos 3 casos
+  if (dist < CAMPOREP.radius) {
+    deltaO.x = -signo(cos(angulo)) * std::numeric_limits<double>::infinity();
+    deltaO.y = -signo(sin(angulo)) * std::numeric_limits<double>::infinity();
+  } else if (dist <= CAMPOREP.spread + CAMPOREP.radius) {
+    deltaO.x = -CAMPOREP.intens * (CAMPOREP.spread + CAMPOREP.radius - dist) * cos(angulo);
+    deltaO.y = -CAMPOREP.intens * (CAMPOREP.spread + CAMPOREP.radius - dist) * sin(angulo);
+  } else {
+    deltaO = {0, 0};
+  }
 }
 
 void LocalPlanner::setTotalRepulsivo(){
@@ -144,4 +157,3 @@ bool LocalPlanner::goalAchieved(){
 //determina que el objetivo se ha alcanzado cuando ambas velocidades son 0.
     return (v_angular == 0 and v_lineal == 0);
     }
-
