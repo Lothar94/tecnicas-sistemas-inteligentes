@@ -28,6 +28,24 @@ LocalPlanner::LocalPlanner(){
   //Subscribe to the simulated robot's laser scan topic
   laserSub = node.subscribe("base_scan", 1, &LocalPlanner::scanCallBack, this);
   odomSub = node.subscribe("base_pose_ground_truth", 1, &LocalPlanner::odomCallBack, this);
+
+  // Parámetros de configuración de campos atractivos y repulsivos.
+    CAMPOATT.radius = 0.01; CAMPOATT.spread = 3.5; CAMPOATT.intens = 0.05;
+    CAMPOREP.radius = 0.02; CAMPOREP.spread = 1.0; CAMPOREP.intens = 0.01;
+    posGoal.x = posGoal.y = 0;  //Posición del objetivo
+    pos.x = pos.y = 0;      //Posición actual
+    yaw = 0;     //Angulo (en radianes) de orientación del robot
+    deltaGoal.x = deltaGoal.y = 0;//Componente del campo atractivo
+    deltaObst.x = deltaObst.y = 0;//Componente del campo repulsivo (para todos los obstáculos)
+    delta.x = delta.y = 0;    //Componente total
+    v_angular = v_lineal = 0; //velocidad angular
+
+	// Advertise a new publisher for the simulated robot's velocity command topic
+	commandPub = node.advertise<geometry_msgs::Twist>("cmd_vel", 10);
+
+	// Subscribe to the simulated robot's laser scan topic
+	laserSub = node.subscribe("base_scan", 1, &LocalPlanner::scanCallBack, this);
+  odomSub =  node.subscribe("base_pose_ground_truth", 1, &LocalPlanner::odomCallBack, this);
 }
 
 void LocalPlanner::odomCallBack(const nav_msgs::Odometry::ConstPtr& msg){
@@ -85,10 +103,18 @@ void LocalPlanner::getOneDeltaRepulsivo(Tupla posObst, Tupla &deltaO){
 // Devuelve los valores en deltaO.x y deltaO.y
 }
 
-void LocalPlanner::setTotalRepulsivo(){
 //Calcula la componente total repulsiva como suma de las componentes repulsivas para cada obstáculo.
+void LocalPlanner::setTotalRepulsivo(){
+    // Ponemos las componentes a 0.
     deltaObst.x = deltaObst.y = 0;
-
+    // Variables auxiliares
+    Tupla aux;
+    int size = posObs.size();
+    // Calcula la componente a cada obstáculo y la suma a deltaObst.
+    for (int i = 0; i < size; i++)
+      getOneDeltaRepulsivo(posObs.at(i), aux);
+      deltaObst.x += aux.x; deltaObst.y += aux.y;
+    }
 }
 
 void LocalPlanner::scanCallBack(const sensor_msgs::LaserScan::ConstPtr& scan){
@@ -140,6 +166,7 @@ void LocalPlanner::setv_Angular(){
     else
       v_angular = (diferencia_normalizada > (-1)*EPSILON_ANGULAR)? 0: diferencia_normalizada;
 }
+<<<<<<< HEAD
 
 //Calcula la velocidad lineal
 void LocalPlanner::setv_Lineal(){
@@ -149,4 +176,14 @@ void LocalPlanner::setv_Lineal(){
 //Determina que el objetivo se ha alcanzado cuando ambas velocidades son 0.
 bool LocalPlanner::goalAchieved(){
   return (v_angular == 0 and v_lineal == 0);
+=======
+void LocalPlanner::setv_Lineal(){
+//calcula la velocidad lineal
+    v_lineal =  sqrt(delta.x*delta.x + delta.y*delta.y);
+}
+
+bool LocalPlanner::goalAchieved(){
+//determina que el objetivo se ha alcanzado cuando ambas velocidades son 0.
+    return (v_angular == 0 and v_lineal == 0);
+>>>>>>> da06f6df844fc4c0c7ee444951ebbf7ce97371b1
 }
