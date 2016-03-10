@@ -37,7 +37,13 @@ class LocalPlanner
         const static double EPSILON_ANGULAR = 0.0009; //Valor a partir del cual entendemos que el robot está en la orientación deseada
         const static double MIN_SCAN_ANGLE_RAD = -30.0/180*M_PI;
         const static double MAX_SCAN_ANGLE_RAD = +30.0/180*M_PI;
-        LocalPlanner(); //constructor.
+
+        // Constructores.
+        LocalPlanner();   // Constructor sin parámetros.
+
+        LocalPlanner(double att_r, double att_s, double att_i,            // Constructor que fija la configuración de los
+                     double rep_r, double rep_s, double rep_i);           // campos de atracción y repulsión. 
+
         void setGoal(const move_base_msgs::MoveBaseGoalConstPtr& goal) {
             posGoal.x = goal->target_pose.pose.position.x;
             posGoal.y = goal->target_pose.pose.position.y;
