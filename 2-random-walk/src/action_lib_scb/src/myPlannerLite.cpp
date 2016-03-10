@@ -120,7 +120,7 @@ void LocalPlanner::getOneDeltaRepulsivo(Tupla obstaculo, Tupla &deltaO){
     deltaO.x = -CAMPOREP.intens * (CAMPOREP.spread + CAMPOREP.radius - dist) * cos(angulo);
     deltaO.y = -CAMPOREP.intens * (CAMPOREP.spread + CAMPOREP.radius - dist) * sin(angulo);
   } else {
-    deltaO.x = 0; delta0.y = 0;
+    deltaO.x = 0; deltaO.y = 0;
   }
 }
 
@@ -132,7 +132,7 @@ void LocalPlanner::setTotalRepulsivo(){
     Tupla aux;
     int size = posObs.size();
     // Calcula la componente a cada obstáculo y la suma a deltaObst.
-    for (int i = 0; i < size; i++)
+    for (int i = 0; i < size; i++) {
       getOneDeltaRepulsivo(posObs.at(i), aux);
       deltaObst.x += aux.x; deltaObst.y += aux.y;
     }
