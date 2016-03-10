@@ -61,22 +61,18 @@ void LocalPlanner::odomCallBack(const nav_msgs::Odometry::ConstPtr& msg){
 
 //Calcula el componente atractivo del campo de potencial
 void LocalPlanner::setDeltaAtractivo(){
-  double d = distancia(posGoal, pos);
-  double theta = atan2(posGoal.y - pos.y, posGoal.x - pos.x);
+  double dist = distancia(posGoal, pos);
+  double angulo = atan2(posGoal.y - pos.y, posGoal.x - pos.x);
 
-  if (d-CAMPOATT.radius < TOLERANCIA){
+  // Distinguimos 3 casos
+  if (dist < CAMPOATT.radius) {
     deltaGoal.x = deltaGoal.y = 0;
-    return;
-  }
-  if ((CAMPOATT.radius < d) and (d < (CAMPOATT.spread - CAMPOATT.radius ))){
-    deltaGoal.x = CAMPOATT.intens *(d - CAMPOATT.radius)*cos(theta);
-    deltaGoal.y = CAMPOATT.intens *(d - CAMPOATT.radius)*sin(theta);
-    return;
-  }
-  if (d > (CAMPOATT.spread + CAMPOATT.radius)){
-    deltaGoal.x = CAMPOATT.intens*CAMPOATT.spread*cos(theta);
-    deltaGoal.y = CAMPOATT.intens*CAMPOATT.spread*sin(theta);
-    return;
+  } else if (dist < CAMPOATT.spread + CAMPOATT.radius) {
+    deltaGoal.x = CAMPOATT.intens * (dist - CAMPOATT.radius) * cos(theta);
+    deltaGoal.y = CAMPOATT.intens * (dist - CAMPOATT.radius) * sin(theta);
+  } else {
+    deltaGoal.x = CAMPOATT.intens * CAMPOATT.spread * cos(theta);
+    deltaGoal.y = CAMPOATT.intens * CAMPOATT.spread * sin(theta);
   }
 }
 
