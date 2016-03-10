@@ -19,7 +19,7 @@ LocalPlanner::LocalPlanner(){
   deltaObst.x = deltaObst.y = 0;
   //Componente total
   delta.x = delta.y = 0;
-  //velocidad angular
+  //Velocidad angular
   v_angular = v_lineal = 0;
 
   //Advertise a new publisher for the simulated robot's velocity command topic
