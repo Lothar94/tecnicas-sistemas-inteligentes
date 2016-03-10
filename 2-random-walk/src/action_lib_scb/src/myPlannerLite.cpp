@@ -120,7 +120,7 @@ void LocalPlanner::getOneDeltaRepulsivo(Tupla obstaculo, Tupla &deltaO){
     deltaO.x = -CAMPOREP.intens * (CAMPOREP.spread + CAMPOREP.radius - dist) * cos(angulo);
     deltaO.y = -CAMPOREP.intens * (CAMPOREP.spread + CAMPOREP.radius - dist) * sin(angulo);
   } else {
-    deltaO = {0, 0};
+    deltaO.x = 0; delta0.y = 0;
   }
 }
 
