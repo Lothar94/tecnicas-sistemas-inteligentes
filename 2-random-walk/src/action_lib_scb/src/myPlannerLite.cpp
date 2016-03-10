@@ -61,28 +61,37 @@ void LocalPlanner::odomCallBack(const nav_msgs::Odometry::ConstPtr& msg){
 
 //Calcula el componente atractivo del campo de potencial
 void LocalPlanner::setDeltaAtractivo(){
-  double d = distancia(posGoal, pos);
-  double theta = atan2(posGoal.y - pos.y, posGoal.x - pos.x);
+  double dist = distancia(posGoal, pos);
+  double angulo = atan2(posGoal.y - pos.y, posGoal.x - pos.x);
 
-  if (d-CAMPOATT.radius < TOLERANCIA){
+  // Distinguimos 3 casos
+  if (dist < CAMPOATT.radius) {
     deltaGoal.x = deltaGoal.y = 0;
-    return;
-  }
-  if ((CAMPOATT.radius < d) and (d < (CAMPOATT.spread - CAMPOATT.radius ))){
-    deltaGoal.x = CAMPOATT.intens *(d - CAMPOATT.radius)*cos(theta);
-    deltaGoal.y = CAMPOATT.intens *(d - CAMPOATT.radius)*sin(theta);
-    return;
-  }
-  if (d > (CAMPOATT.spread + CAMPOATT.radius)){
-    deltaGoal.x = CAMPOATT.intens*CAMPOATT.spread*cos(theta);
-    deltaGoal.y = CAMPOATT.intens*CAMPOATT.spread*sin(theta);
-    return;
+  } else if (dist < CAMPOATT.spread + CAMPOATT.radius) {
+    deltaGoal.x = CAMPOATT.intens * (dist - CAMPOATT.radius) * cos(theta);
+    deltaGoal.y = CAMPOATT.intens * (dist - CAMPOATT.radius) * sin(theta);
+  } else {
+    deltaGoal.x = CAMPOATT.intens * CAMPOATT.spread * cos(theta);
+    deltaGoal.y = CAMPOATT.intens * CAMPOATT.spread * sin(theta);
   }
 }
 
-void LocalPlanner::getOneDeltaRepulsivo(Tupla posObst, Tupla &deltaO){
 // recibe una posición de un obstáculo y calcula el componente repulsivo para ese obstáculo.
 // Devuelve los valores en deltaO.x y deltaO.y
+void LocalPlanner::getOneDeltaRepulsivo(Tupla obstaculo, Tupla &deltaO){
+  double dist = distancia(obstaculo, pos);
+  double angulo = atan2(obstaculo.y - pos.y, obstaculo.x - pos.x);
+
+  // Distinguimos 3 casos
+  if (dist < CAMPOREP.radius) {
+    deltaO.x = -signo(cos(angulo)) * std::numeric_limits<double>::infinity();
+    deltaO.y = -signo(sin(angulo)) * std::numeric_limits<double>::infinity();
+  } else if (dist <= CAMPOREP.spread + CAMPOREP.radius) {
+    deltaO.x = -CAMPOREP.intens * (CAMPOREP.spread + CAMPOREP.radius - dist) * cos(angulo);
+    deltaO.y = -CAMPOREP.intens * (CAMPOREP.spread + CAMPOREP.radius - dist) * sin(angulo);
+  } else {
+    deltaO = {0, 0};
+  }
 }
 
 //Calcula la componente total repulsiva como suma de las componentes repulsivas para cada obstáculo.

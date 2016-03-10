@@ -7,8 +7,8 @@
 #include "geometry_msgs/Twist.h"
 #include <move_base_msgs/MoveBaseAction.h>
 
-typedef struct tupla {double x; double y;} Tupla;
-typedef struct conf {double radius; double spread; double intens;} PFConf;
+struct Tupla {double x; double y;};
+struct PFConf {double radius; double spread; double intens;};
 
 template <typename T> int signo(T val) {
     return  (val/abs(val));
