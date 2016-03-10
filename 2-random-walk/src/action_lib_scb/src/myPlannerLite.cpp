@@ -166,7 +166,6 @@ void LocalPlanner::setv_Angular(){
     else
       v_angular = (diferencia_normalizada > (-1)*EPSILON_ANGULAR)? 0: diferencia_normalizada;
 }
-<<<<<<< HEAD
 
 //Calcula la velocidad lineal
 void LocalPlanner::setv_Lineal(){
@@ -176,14 +175,13 @@ void LocalPlanner::setv_Lineal(){
 //Determina que el objetivo se ha alcanzado cuando ambas velocidades son 0.
 bool LocalPlanner::goalAchieved(){
   return (v_angular == 0 and v_lineal == 0);
-=======
+
+  //calcula la velocidad lineal
 void LocalPlanner::setv_Lineal(){
-//calcula la velocidad lineal
     v_lineal =  sqrt(delta.x*delta.x + delta.y*delta.y);
 }
 
-bool LocalPlanner::goalAchieved(){
 //determina que el objetivo se ha alcanzado cuando ambas velocidades son 0.
+bool LocalPlanner::goalAchieved(){
     return (v_angular == 0 and v_lineal == 0);
->>>>>>> da06f6df844fc4c0c7ee444951ebbf7ce97371b1
 }
