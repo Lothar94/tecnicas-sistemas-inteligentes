@@ -2,7 +2,7 @@
   <node name="stage" pkg="stage_ros" type="stageros" args="$(find stage_ros)/world/willow-erratic.world"/>
   <node name="server_scb_nod" pkg="action_lib_scb" type="server_scb_node"/>
   <node name="client_scb_nod" pkg="action_lib_scb" type="client_scb_node"/>
-  <param name="goal_x" value="-18.174" />
-  <param name="goal_y" value="25.876" />
+  <param name="goal_x" value="-14.0" />
+  <param name="goal_y" value="20.0" />
   <param name="goal_theta" value="1" />
 </launch>

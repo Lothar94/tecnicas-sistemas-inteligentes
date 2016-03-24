@@ -4,6 +4,31 @@
 
 typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseClient;
 
+//Proporciona información mientras se intenta alcanzar la meta.
+void feedbackCBGoal0( const move_base_msgs::MoveBaseFeedbackConstPtr& feedback ){
+  //ROS_INFO("Hello... It's me...");
+}
+
+//Detecta si se alcanzó la meta o se canceló.
+void doneCBGoal0( const actionlib::SimpleClientGoalState& state,
+   const move_base_msgs::MoveBaseResultConstPtr& result ){
+  if (state.state_ == actionlib::SimpleClientGoalState::SUCCEEDED){
+    ROS_INFO("¡¡ Objetivo alcanzado !!");
+  }
+  else if (state.state_ == actionlib::SimpleClientGoalState::ABORTED){
+    ROS_INFO("Objetivo abortado");
+  }
+  else if (state.state_ == actionlib::SimpleClientGoalState::REJECTED){
+    ROS_INFO("Objetivo cancelado");
+  }
+  ros::shutdown();
+}
+
+//Indica del establecimiento del objetivo y que este está activo.
+void activeCBGoal0(){
+  ROS_INFO("El goal actual esta activo");
+}
+
 int main(int argc, char** argv){
 
   ros::init(argc,argv, "client_node");
@@ -34,21 +59,16 @@ int main(int argc, char** argv){
   std::cerr << "x,y,theta:" <<x<<y<<theta<< std::endl;
   goal.target_pose.header.frame_id = 	"map";
   goal.target_pose.header.stamp =	ros::Time::now();
-  goal.target_pose.pose.position.x =x;//-18.174;
-  goal.target_pose.pose.position.y =y;//	25.876;
-  goal.target_pose.pose.orientation.w =theta;//	1;
+  goal.target_pose.pose.position.x =-14;//-18.174;
+  goal.target_pose.pose.position.y =23;//	25.876;
+  goal.target_pose.pose.orientation.w =1;//	1;
 
   ROS_INFO("Enviando el objetivo");
-  ac.sendGoal(goal);
+  ac.sendGoal(goal, &doneCBGoal0, &activeCBGoal0, &feedbackCBGoal0);
 
   //Esperar al retorno de la acción
   ROS_INFO("Esperando al resultado  de la acción");
   ac.waitForResult();
-
-  if (ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
-    ROS_INFO("¡¡ Objetivo alcanzado !!");
-  else
-    ROS_INFO("Se ha fallado por alguna razón.");
 
   return 0;
 }

@@ -30,12 +30,12 @@ class LocalPlanner{
 
         PFConf CAMPOATT;  //Parámetros de configuración (radio, spread, alpha) del campo atractivo.
         PFConf CAMPOREP;  //Parámetros de configuración (radio, spread, beta)del campo repulsivo.
-        const static double TOLERANCIA = 0.009;   //Valor a partir del cual consideramos que el robot está
+        const static double TOLERANCIA = 0.1;   //Valor a partir del cual consideramos que el robot está
                                                   //en la posición objetivo (ver setDeltaAtractivo)
         const static double V_ANGULAR_CTE = M_PI/8;  //Valor de la velocidad angular constante.
         const static double EPSILON_ANGULAR = 0.0009; //Valor a partir del cual entendemos que el robot está en la orientación deseada
-        const static double MIN_SCAN_ANGLE_RAD = -30.0/180*M_PI;
-        const static double MAX_SCAN_ANGLE_RAD = +30.0/180*M_PI;
+        const static double MIN_SCAN_ANGLE_RAD = -135.0/180*M_PI;
+        const static double MAX_SCAN_ANGLE_RAD = +135.0/180*M_PI;
 
         // Constructores.
         LocalPlanner();   // Constructor sin parámetros.

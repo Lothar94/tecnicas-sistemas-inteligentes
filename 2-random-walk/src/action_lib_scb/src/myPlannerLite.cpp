@@ -2,35 +2,9 @@
 #include "geometry_msgs/Twist.h"
 #include <tf/transform_datatypes.h> //para transformar quaternions en ángulos, necesario en odomCallBack
 
-LocalPlanner::LocalPlanner() :LocalPlanner(0.01, 3.5, 0.05, 0.02, 1.0, 0.01){
-  /*
-  //Parámetros de configuración (radio, spread, alpha) del campo actractivo.
-  CAMPOATT.radius = 0.01; CAMPOATT.spread = 3.5; CAMPOATT.intens = 0.05;
-  //Parámetros de configuración (radio, spread, beta)del campo repulsivo.
-  CAMPOREP.radius = 0.02; CAMPOREP.spread = 1.0; CAMPOREP.intens = 0.01;
-  //Posición del objetivo
-  posGoal.x = posGoal.y = 0;
-  //Posición actual
-  pos.x = pos.y = 0;
-  //Angulo (en radianes) de orientación del robot
-  yaw = 0;
-  //Componente del campo atractivo
-  deltaGoal.x = deltaGoal.y = 0;
-  //Componente del campo repulsivo (para todos los obstáculos)
-  deltaObst.x = deltaObst.y = 0;
-  //Componente total
-  delta.x = delta.y = 0;
-  //Velocidad angular
-  v_angular = v_lineal = 0;
+//Parametros iniciales: LocalPlanner(0.01, 3.5, 0.05, 0.02, 1.0, 0.01)
 
-  //Advertise a new publisher for the simulated robot's velocity command topic
-  commandPub = node.advertise<geometry_msgs::Twist>("cmd_vel", 10);
-
-  //Subscribe to the simulated robot's laser scan topic
-  laserSub = node.subscribe("base_scan", 1, &LocalPlanner::scanCallBack, this);
-  odomSub = node.subscribe("base_pose_ground_truth", 1, &LocalPlanner::odomCallBack, this);
-  */
-}
+LocalPlanner::LocalPlanner() :LocalPlanner(0.01, 3.5, 0.05, 0.02, 1.0, 0.01){}
 
 LocalPlanner::LocalPlanner(double att_r, double att_s, double att_i, double rep_r, double rep_s, double rep_i){
   //Parámetros de configuración (radio, spread, alpha) del campo actractivo.
@@ -97,10 +71,10 @@ void LocalPlanner::setDeltaAtractivo(){
   // Distinguimos 3 casos
   if (dist < CAMPOATT.radius) {
     deltaGoal.x = deltaGoal.y = 0;
-  } else if (dist < CAMPOATT.spread + CAMPOATT.radius) {
+  } else if (dist <= CAMPOATT.spread + CAMPOATT.radius && dist >= CAMPOATT.radius ) {
     deltaGoal.x = CAMPOATT.intens * (dist - CAMPOATT.radius) * cos(angulo);
     deltaGoal.y = CAMPOATT.intens * (dist - CAMPOATT.radius) * sin(angulo);
-  } else {
+  } else if (dist >CAMPOATT.spread + CAMPOATT.radius) {
     deltaGoal.x = CAMPOATT.intens * CAMPOATT.spread * cos(angulo);
     deltaGoal.y = CAMPOATT.intens * CAMPOATT.spread * sin(angulo);
   }
@@ -116,10 +90,10 @@ void LocalPlanner::getOneDeltaRepulsivo(Tupla obstaculo, Tupla &deltaO){
   if (dist < CAMPOREP.radius) {
     deltaO.x = -signo(cos(angulo)) * std::numeric_limits<double>::infinity();
     deltaO.y = -signo(sin(angulo)) * std::numeric_limits<double>::infinity();
-  } else if (dist <= CAMPOREP.spread + CAMPOREP.radius) {
+  } else if (dist <= CAMPOREP.spread + CAMPOREP.radius && dist >= CAMPOREP.radius) {
     deltaO.x = -CAMPOREP.intens * (CAMPOREP.spread + CAMPOREP.radius - dist) * cos(angulo);
     deltaO.y = -CAMPOREP.intens * (CAMPOREP.spread + CAMPOREP.radius - dist) * sin(angulo);
-  } else {
+  } else if (dist > CAMPOREP.spread + CAMPOREP.radius) {
     deltaO.x = 0; deltaO.y = 0;
   }
 }
@@ -158,6 +132,7 @@ void LocalPlanner::scanCallBack(const sensor_msgs::LaserScan::ConstPtr& scan){
     obstaculo.x =pos.x + scan->ranges[currIndex]*cos(yaw+bearing);
     obstaculo.y =pos.y + scan->ranges[currIndex]*sin(yaw+bearing);
     //ROS_INFO("Obstaculo %d en posición (%f,%f)",currIndex,obstaculo.x, obstaculo.y);
+    //ROS_INFO_STREAM("X: " << obstaculo.x << "Y: "<< obstaculo.y );
     posObs.push_back(obstaculo);
     bearing += scan->angle_increment;
   }
@@ -197,5 +172,16 @@ void LocalPlanner::setv_Lineal(){
 
 //Determina que el objetivo se ha alcanzado cuando ambas velocidades son 0.
 bool LocalPlanner::goalAchieved(){
-  return (v_angular == 0 and v_lineal == 0);
+  bool alcanzado = false;
+  double dist=distancia(pos,posGoal);
+
+  ROS_INFO("Distancia: %f",dist);
+
+  if(dist <= TOLERANCIA){
+    alcanzado = true;
+    v_angular = 0;
+    v_lineal = 0;
+  }
+
+  return alcanzado;
 }
