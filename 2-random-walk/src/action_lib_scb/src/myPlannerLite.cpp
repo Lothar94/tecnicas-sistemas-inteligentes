@@ -68,13 +68,21 @@ void LocalPlanner::setDeltaAtractivo(){
   double dist = distancia(posGoal, pos);
   double angulo = atan2(posGoal.y - pos.y, posGoal.x - pos.x);
 
-  // Distinguimos 3 casos
+  // Distinguimos 4 casos
+  // Si estamos en el radio del objetivo, hemos llegado a él.
   if (dist < CAMPOATT.radius) {
     deltaGoal.x = deltaGoal.y = 0;
-  } else if (dist <= CAMPOATT.spread + CAMPOATT.radius && dist >= CAMPOATT.radius ) {
-    deltaGoal.x = CAMPOATT.intens * (dist - CAMPOATT.radius) * cos(angulo);
-    deltaGoal.y = CAMPOATT.intens * (dist - CAMPOATT.radius) * sin(angulo);
-  } else if (dist >CAMPOATT.spread + CAMPOATT.radius) {
+  // Si estamos acercándonos al objetivo, fijamos una velocidad constante (dependiente de los parámetros)
+  // para evitar ralentizar el acercamiento al objetivo (que la velocidad no depende de la distancia)
+  } else if (dist <= CAMPOATT.spread/2 + CAMPOATT.radius ) {
+    deltaGoal.x = CAMPOATT.intens * (CAMPOATT.spread/2 + CAMPOATT.radius) * cos(angulo);
+    deltaGoal.y = CAMPOATT.intens * (CAMPOATT.spread/2 + CAMPOATT.radius) * sin(angulo);
+  // Si estamos en el campo de atracción, pero alejados, dependemos de la distancia
+  } else if (dist <= CAMPOATT.spread + CAMPOATT.radius ) {
+      deltaGoal.x = CAMPOATT.intens * (dist - CAMPOATT.radius) * cos(angulo);
+      deltaGoal.y = CAMPOATT.intens * (dist - CAMPOATT.radius) * sin(angulo);
+  // Fuera del campo de atracción la velocidad es fija.
+  } else if (dist > CAMPOATT.spread + CAMPOATT.radius) {
     deltaGoal.x = CAMPOATT.intens * CAMPOATT.spread * cos(angulo);
     deltaGoal.y = CAMPOATT.intens * CAMPOATT.spread * sin(angulo);
   }
