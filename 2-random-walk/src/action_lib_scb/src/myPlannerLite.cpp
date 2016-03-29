@@ -112,18 +112,16 @@ void LocalPlanner::setTotalRepulsivo(){
     deltaObst.x = deltaObst.y = 0;
     // Variables auxiliares
     Tupla aux;
-    Tupla dato;
 
     // Calcula la componente a cada obstáculo y la suma a deltaObst.
     for (int i = 0; i < posObs.size(); i++) {
       try {
-        dato = posObs.at(i);
+        getOneDeltaRepulsivo(posObs.at(i), aux);
+        deltaObst.x += aux.x;
+        deltaObst.y += aux.y;
       } catch (std::exception& e) {
         ROS_INFO("%s", e.what());
       }
-      getOneDeltaRepulsivo(dato, aux);
-      deltaObst.x += aux.x;
-      deltaObst.y += aux.y;
     }
 }
 
