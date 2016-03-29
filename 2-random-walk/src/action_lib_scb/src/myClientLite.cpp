@@ -133,7 +133,6 @@ int main(int argc, char** argv){
   ac.sendGoal(goal, &doneCBGoal0, &activeCBGoal0, &feedbackCBGoal0);
 
   ros::Rate r(5); // 5 hz
-  tiempo_inicial = ros::Time::now().toSec();
 
   while(!cancelar){
     ros::spinOnce();
