@@ -173,9 +173,10 @@ void LocalPlanner::setv_Angular(){
   }
 }
 
-//Calcula la velocidad lineal
+// Calcula la velocidad lineal.
+// Usar después de calcular la velocidad angular.
 void LocalPlanner::setv_Lineal(){
-  v_lineal =  sqrt(delta.x*delta.x + delta.y*delta.y);
+  v_lineal =  (v_angular == V_ANGULAR_CTE)? 0.01 : sqrt(delta.x*delta.x + delta.y*delta.y); 
 }
 
 //Determina que el objetivo se ha alcanzado cuando ambas velocidades son 0.
