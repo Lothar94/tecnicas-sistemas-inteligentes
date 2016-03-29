@@ -6,11 +6,7 @@ typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseCl
 
 struct Tupla {double x; double y;};
 
-Tupla pos_inicial;
-double tiempo_inicial;
 bool cancelar = false;
-bool primera = true;
-bool primera_igual = true;
 
 double distancia(Tupla src, Tupla dst){
     return sqrt((src.x - dst.x) * (src.x - dst.x) +
@@ -39,6 +35,12 @@ void feedbackCBGoal0( const move_base_msgs::MoveBaseFeedback::ConstPtr& feedback
   double tiempo;
   Tupla posicion;
   static double tm = 0.0;
+
+  static Tupla pos_inicial;
+  static double tiempo_inicial;
+  static bool primera = true;
+  static bool primera_igual = true;
+
   double tiempo_maximo = 3.0;
   posicion.x = feedback->base_position.pose.position.x;
   posicion.y = feedback->base_position.pose.position.y;
@@ -49,7 +51,7 @@ void feedbackCBGoal0( const move_base_msgs::MoveBaseFeedback::ConstPtr& feedback
     primera = false;
   }
   else{
-    if( posicion.x == pos_inicial.x && posicion.y == pos_inicial.y ){
+    if (posicion.x == pos_inicial.x && posicion.y == pos_inicial.y) {
       if( primera_igual ){
         tiempo_inicial = ros::Time::now().toSec();
         ROS_INFO("tiempo_inicial: %f", tiempo_inicial);
