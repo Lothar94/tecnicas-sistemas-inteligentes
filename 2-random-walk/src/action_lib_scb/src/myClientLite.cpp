@@ -32,47 +32,36 @@ void feedbackCBGoal0( const move_base_msgs::MoveBaseFeedback::ConstPtr& feedback
       cancelar = true;
     }
   }*/
-  double tiempo;
-  Tupla posicion;
-  static double tm = 0.0;
 
-  static Tupla pos_inicial;
+  Tupla posicion;
+
   static double tiempo_inicial;
   static bool primera = true;
   static bool primera_igual = true;
 
-  double tiempo_maximo = 3.0;
+  const double tiempo_maximo = 3.0;
   posicion.x = feedback->base_position.pose.position.x;
   posicion.y = feedback->base_position.pose.position.y;
 
-  if( primera ){
+  static Tupla pos_inicial = {posicion.x, posicion.y};
+
+  if (cancelar) {
+    cancelar = false;
     pos_inicial.x = posicion.x;
     pos_inicial.y = posicion.y;
-    primera = false;
-  }
-  else{
-    if (posicion.x == pos_inicial.x && posicion.y == pos_inicial.y) {
-      if( primera_igual ){
-        tiempo_inicial = ros::Time::now().toSec();
-        ROS_INFO("tiempo_inicial: %f", tiempo_inicial);
-        primera_igual = false;
-      }
-      else{
-        if( tm < tiempo_maximo ){
-          tiempo = ros::Time::now().toSec();
-          tm = tiempo-tiempo_inicial;
-          ROS_INFO("tiempo: %f", tm);
-        }
-        else{
-          cancelar = true;
-          ROS_INFO("cancelar");
-        }
-      }
+  } else if (posicion.x == pos_inicial.x && posicion.y == pos_inicial.y) {
+    if (primera_igual) {
+      tiempo_inicial = ros::Time::now().toSec();
+      ROS_INFO("tiempo_inicial: %f", tiempo_inicial);
+      primera_igual = false;
+    } else if (ros::Time::now().toSec() - tiempo_inicial >= tiempo_maximo) {
+      cancelar = true;
+      ROS_INFO("cancelando a los %f segundos", ros::Time::now().toSec() - tiempo_inicial);
     }
-    else{
-      pos_inicial.x = posicion.x;
-      pos_inicial.y = posicion.y;
-    }
+  } else {
+    primera_igual = true;
+    pos_inicial.x = posicion.x;
+    pos_inicial.y = posicion.y;
   }
 }
 
