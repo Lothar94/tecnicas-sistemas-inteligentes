@@ -112,11 +112,17 @@ void LocalPlanner::setTotalRepulsivo(){
     deltaObst.x = deltaObst.y = 0;
     // Variables auxiliares
     Tupla aux;
-    int size = posObs.size();
+
     // Calcula la componente a cada obstáculo y la suma a deltaObst.
-    for (int i = 0; i < size; i++) {
-      getOneDeltaRepulsivo(posObs.at(i), aux);
-      deltaObst.x += aux.x; deltaObst.y += aux.y;
+    for (int i = 0, Tupla dato; i < posObs.size(); i++) {
+      try {
+        getOneDeltaRepulsivo(posObs.at(i), aux);
+      } catch (std::exception& e) {
+        ROS_INFO("%s", e.what());
+        assert(false);
+      }
+      deltaObst.x += aux.x;
+      deltaObst.y += aux.y;
     }
 }
 
@@ -176,7 +182,7 @@ void LocalPlanner::setv_Angular(){
 // Calcula la velocidad lineal.
 // Usar después de calcular la velocidad angular.
 void LocalPlanner::setv_Lineal(){
-  v_lineal =  (v_angular == V_ANGULAR_CTE)? 0.01 : sqrt(delta.x*delta.x + delta.y*delta.y); 
+  v_lineal =  (v_angular == V_ANGULAR_CTE)? 0.01 : sqrt(delta.x*delta.x + delta.y*delta.y);
 }
 
 //Determina que el objetivo se ha alcanzado cuando ambas velocidades son 0.
