@@ -35,6 +35,34 @@ define invader position
   drive "omni"
   topurg(pose [ 0.275 0.000 0.000 0.000 ])
 )
+define ghost position
+(
+  bitmap "bitmaps/ghost.png"
+  size [0.850 0.850 0.650]
+  gui_nose 1
+  drive "omni"
+  topurg(pose [ 0.275 0.000 0.000 0.000 ])
+)
+define submarine position
+(
+  bitmap "bitmaps/submarine.png"
+  size [0.850 0.850 0.650]
+
+  origin [-0.050 1.000 0.000 0.000]
+  gui_nose 1
+  drive "omni"
+  topurg(pose [ 0.275 0.000 0.000 0.000 ])
+)
+define human position
+(
+  bitmap "bitmaps/human_outline.png"
+  size [0.850 0.850 0.650]
+  origin [0.050 0.000 0.000 0.000]
+  gui_nose 1
+  drive "omni"
+  topurg(pose [ 0.275 0.000 0.000 0.000 ])
+)
+
 define floorplan model
 (
   # sombre, sensible, artistic
@@ -77,7 +105,10 @@ floorplan
 
 # throw in a robot
 pr2( pose [ 0.000 0.000 0.000 -127.719 ] name "pr2" color "blue")
-invader( pose [ 20.000 0.000 0.000 -127.719 ] name "invader" color "orange")
+invader( pose [ 15.000 0.400 0.000 0.000 ] name "invader" color "orange")
+ghost( pose [ 16.000 0.600 0.000 0.000 ] name "ghost" color "purple")
+submarine( pose [ 17.100 0.000 0.000 0.000 ] name "invader" color "yellow")
+human( pose [ 18.000 0.300 0.000 0.000 ] name "invader" color "brown")
 
 block( pose [ 16.649 5.000 0.000 0.000 ] color "red")
 block( pose [ -25.062 -12.909 0.000 180.000 ] color "yellow")
