@@ -26,7 +26,15 @@ define pr2 position
   drive "omni"
   topurg(pose [ 0.275 0.000 0.000 0.000 ])
 )
-
+define invader position
+(
+  bitmap "bitmaps/space_invader.png"
+  size [0.850 0.850 0.650]
+  origin [-0.050 0.000 0.000 0.000]
+  gui_nose 1
+  drive "omni"
+  topurg(pose [ 0.275 0.000 0.000 0.000 ])
+)
 define floorplan model
 (
   # sombre, sensible, artistic
@@ -36,7 +44,7 @@ define floorplan model
   boundary 1
 
   gui_nose 0
-  gui_grid 0
+  gui_grid 1
 
   gui_outline 0
   gripper_return 0
@@ -69,6 +77,8 @@ floorplan
 
 # throw in a robot
 pr2( pose [ 0.000 0.000 0.000 -127.719 ] name "pr2" color "blue")
+invader( pose [ 20.000 0.000 0.000 -127.719 ] name "invader" color "orange")
+
 block( pose [ 16.649 5.000 0.000 0.000 ] color "red")
 block( pose [ -25.062 -12.909 0.000 180.000 ] color "yellow")
 block( pose [ -25.062 12.909 0.000 180.000 ] color "pink")
