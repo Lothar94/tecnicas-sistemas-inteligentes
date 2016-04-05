@@ -10,6 +10,12 @@
 struct Tupla {double x; double y;};
 struct PFConf {double radius; double spread; double intens;};
 
+enum PlannerState {
+  running,
+  turning,
+  local_minimum
+};
+
 template <typename T> int signo(T val){
     return (val/abs(val));
 }
@@ -74,12 +80,18 @@ class LocalPlanner{
             commandPub.publish(mensajeTwist);
         }
 
+        PlannerState state() {
+          return state;
+        }
+
     protected:
     private:
         ros::NodeHandle node;
         ros::Publisher commandPub;  //Publicador de velocidades
         ros::Subscriber laserSub;   //Suscriptor del scan laser
         ros::Subscriber odomSub;    //Suscriptor de la odometría.
+
+        PlannerState state;
 
         void scanCallBack(const sensor_msgs::LaserScan::ConstPtr& scan);
         void odomCallBack(const nav_msgs::Odometry::ConstPtr& msg);
