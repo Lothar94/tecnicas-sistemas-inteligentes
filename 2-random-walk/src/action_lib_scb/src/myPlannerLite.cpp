@@ -115,13 +115,9 @@ void LocalPlanner::setTotalRepulsivo(){
 
     // Calcula la componente a cada obstáculo y la suma a deltaObst.
     for (int i = 0; i < posObs.size(); i++) {
-      try {
-        getOneDeltaRepulsivo(posObs.at(i), aux);
-        deltaObst.x += aux.x;
-        deltaObst.y += aux.y;
-      } catch (std::exception& e) {
-        ROS_INFO("%s", e.what());
-      }
+      getOneDeltaRepulsivo(posObs.at(i), aux);
+      deltaObst.x += aux.x;
+      deltaObst.y += aux.y;
     }
 }
 
@@ -130,9 +126,7 @@ void LocalPlanner::scanCallBack(const sensor_msgs::LaserScan::ConstPtr& scan){
   int minIndex = ceil((MIN_SCAN_ANGLE_RAD - scan->angle_min) / scan->angle_increment);
   int maxIndex = floor((MAX_SCAN_ANGLE_RAD - scan->angle_min) / scan->angle_increment);
 
-  //Limpio el vector de posiciones de obstaculos
-  if (posObs.size() > 0)
-    posObs.clear();
+  std::vector<Tupla> nuevos_obstaculos;
 
   //Bearing indica el ángulo de cada muestra
   double bearing = MIN_SCAN_ANGLE_RAD;
@@ -146,9 +140,11 @@ void LocalPlanner::scanCallBack(const sensor_msgs::LaserScan::ConstPtr& scan){
     obstaculo.y =pos.y + scan->ranges[currIndex]*sin(yaw+bearing);
     //ROS_INFO("Obstaculo %d en posición (%f,%f)",currIndex,obstaculo.x, obstaculo.y);
     //ROS_INFO_STREAM("X: " << obstaculo.x << "Y: "<< obstaculo.y );
-    posObs.push_back(obstaculo);
+    nuevos_obstaculos.push_back(obstaculo);
     bearing += scan->angle_increment;
   }
+
+  posObs.swap(nuevos_obstaculos);
 }
 
 //Normaliza un ángulo al intervalo [-PI, PI]
