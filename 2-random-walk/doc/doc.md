@@ -19,17 +19,19 @@ geometry: "a4paper, top=2.5cm, bottom=2.5cm, left=3cm, right=3cm"
 
 \pagebreak
 
-1. Tareas para mejorar el comportamiento reactivo del robot respecto al uso de campos de potencial (navegación local sin mapa).
+# Tareas para mejorar el comportamiento reactivo del robot respecto al uso de campos de potencial (navegación local sin mapa).
 
   a. Conseguir aumentar el campo de visión. El campo de visión del robot simulado es de 270º, ¿cómo hacer para que el escaneo laser sea mayor que el actualmente implementado?
 
-  En el archivo _myPlannerLite.h_ hemos cambiado el valor de las constantes MIN_SCAN_ANGLE_RAD y MAX_SCAN_ANGLE_RAD a -135.0/180*M_PI y 135.0/180*M_PI respectivamente, para aumentar el ángulo de visión.
+  En el archivo _myPlannerLite.h_ hemos cambiado el valor de las constantes MIN_SCAN_ANGLE_RAD y MAX_SCAN_ANGLE_RAD a -135.0/180*M_PI y 135.0/180*M_PI respectivamente, para aumentar el ángulo de visión a un total de 270º.
 
   b. Conseguir que no se demore tanto tiempo en detenerse cuando esté lo suficientemente cerca del objetivo. ¿Por qué tarda tanto en detenerse cuando está próximo al objetivo? ¿Cómo solucionarlo?
 
   Cuando calculamos la componente atractiva y nos encontramos dentro del campo de atracción (representado por la componente _spread_), el módulo de la velocidad es inversamente proporcional a la distancia al objetivo, por lo que cuanto más nos acercamos a él, más lento se mueve el robot.
 
-  Para solucionar este comportamiento, nuestra idea ha sido hacer constante el módulo de la velocidad cuando la distancia al objetivo es menor que la mitad del _spread_ del objetivo. Así, estamos muy próximos al objetivo, la velocidad es constante y no se va reduciendo conforme nos acercamos, evitando que tarde tanto tiempo alcanzar el objetivo y detenerse.
+  Para solucionar este comportamiento, nuestra idea ha sido hacer constante el módulo de la componente atractiva de la velocidad cuando la distancia al objetivo es menor que la mitad del _spread_ del objetivo. Así, cuando estamos muy próximos al objetivo, la velocidad es constante y no se va reduciendo conforme nos acercamos, evitando que tarde tanto tiempo alcanzar el objetivo y detenerse.
+
+  Tomamos esta velocidad constante como aquella obtenida cuando estamos a una distancia del objetivo de _spread_/2.
 
   c. Conseguir que el robot no tenga "comportamiento suicida", es decir, cuando está cerca de un obstáculo acelera y choca con él. ¿Cuál es la causa de este comportamiento suicida? ¿Cómo evitarlo?
 
@@ -37,11 +39,13 @@ geometry: "a4paper, top=2.5cm, bottom=2.5cm, left=3cm, right=3cm"
 
   Como solución, hemos decidido hacer 0 la velocidad lineal del robot cuando se encuentra con un obstáculo y tiene que girar para evitarlo. De esta forma, permitimos al robot tomar la dirección deseada antes de moverse, evitando así lanzarnos hacia el obstáculo.
 
-  d. Conseguir que, una vez que el robot se queda atrapado en una esquina (en un mínimo local) , trate de salir de esta situación. ¿Cómo conseguirlo sin utilizar memoria (es decir, información de un mapa)?
+  d. Conseguir que, una vez que el robot se queda atrapado en una esquina (en un mínimo local), trate de salir de esta situación. ¿Cómo conseguirlo sin utilizar memoria (es decir, información de un mapa)?
+
+
 
   e. Conseguir suprimir las oscilaciones del robot. ¿Cuál es la causa de las oscilaciones? ¿Cómo eliminarlas en la mayor medida posible?
 
-2. Tareas para mejorar el comportamiento del robot mediante técnicas de navegación local con mapa.
+# Tareas para mejorar el comportamiento del robot mediante técnicas de navegación local con mapa.
 
   a. Contemplar el uso de distintos mapas para la experimentación. Los mapas pueden generarse a partir de una imagen mediante el paquete mapserver. Ver explicación sobre manejo de mapas y mundos simulados en la documentación adjunta.
 
@@ -59,3 +63,5 @@ geometry: "a4paper, top=2.5cm, bottom=2.5cm, left=3cm, right=3cm"
 
 
   e. Mejorar el comportamiento del servidor para ajustarse a los nuevos servicios que le va a requerir el cliente.
+
+# Consideraciones adicionales.
