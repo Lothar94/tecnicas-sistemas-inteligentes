@@ -80,7 +80,7 @@ class LocalPlanner{
             commandPub.publish(mensajeTwist);
         }
 
-        PlannerState state() {
+        PlannerState current_state() {
           return state;
         }
 
