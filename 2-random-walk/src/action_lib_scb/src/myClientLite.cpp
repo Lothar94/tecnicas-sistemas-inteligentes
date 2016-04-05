@@ -11,6 +11,8 @@ typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseCl
 struct Tupla {double x; double y;};
 
 bool cancelar = false;
+bool terminar = false;
+
 
 double distancia(Tupla src, Tupla dst){
     return sqrt((src.x - dst.x) * (src.x - dst.x) +
@@ -100,6 +102,7 @@ void doneCBGoal0( const actionlib::SimpleClientGoalState& state,
    const move_base_msgs::MoveBaseResultConstPtr& result ){
   if (state.state_ == actionlib::SimpleClientGoalState::SUCCEEDED){
     ROS_INFO("¡¡ Objetivo alcanzado !!");
+    terminar = true;
   }
   else if (state.state_ == actionlib::SimpleClientGoalState::ABORTED){
     ROS_INFO("Objetivo abortado");
@@ -166,9 +169,13 @@ int main(int argc, char** argv){
 
   ros::Rate r(5); // 5 hz
 
-  while(true){
+
+  while(!terminar){
+
+
     if(cancelar){
       r.sleep();
+
       move_base_msgs::MoveBaseGoal nuevo_goal;
       nuevo_goal.target_pose.header.frame_id = 	"map";
       nuevo_goal.target_pose.header.stamp =	ros::Time::now();
@@ -179,18 +186,20 @@ int main(int argc, char** argv){
       ROS_INFO("El goal actual ha sido cancelado.");
       ac.cancelGoal();
       ac.waitForResult(ros::Duration(10.0));
-
-      ac.sendGoal(nuevo_goal);
-      ROS_INFO("Esperando al resultado de la nueva acción.");
-      ac.waitForResult();
-      if (ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED){
-        ac.sendGoal(goal, &doneCBGoal0, &activeCBGoal0, &feedbackCBGoal0);
-        //Esperar al retorno de la acción
-        ROS_INFO("Esperando al resultado  de la acción");
-      }
-      else{
-        ROS_INFO("Objetivo secundario fallido.");
-        break;
+      if (ac.getState() == actionlib::SimpleClientGoalState::PREEMPTED){
+        ac.sendGoal(nuevo_goal);
+        ROS_INFO("Esperando al resultado de la nueva acción.");
+        ac.waitForResult();
+        if (ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED){
+          ac.sendGoal(goal, &doneCBGoal0, &activeCBGoal0, &feedbackCBGoal0);
+          //Esperar al retorno de la acción
+          ROS_INFO("Esperando al resultado  de la acción");
+          cancelar = false;
+        }
+        else{
+          ROS_INFO("Objetivo secundario fallido.");
+          terminar = true;
+        }
       }
     }
   }
