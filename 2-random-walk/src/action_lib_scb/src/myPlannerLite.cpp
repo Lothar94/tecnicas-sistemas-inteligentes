@@ -26,6 +26,8 @@ LocalPlanner::LocalPlanner(double att_r, double att_s, double att_i, double rep_
   //Velocidad angular
   v_angular = v_lineal = 0;
 
+  state = running;
+
   //Advertise a new publisher for the simulated robot's velocity command topic
   commandPub = node.advertise<geometry_msgs::Twist>("cmd_vel", 10);
 
@@ -159,25 +161,28 @@ double normalize(double angle){
 void LocalPlanner::setv_Angular(){
   double angulo = atan2(delta.y, delta.x);
   double diferencia_normalizada = normalize(angulo-yaw);
+  int signo = 2 * (diferencia_normalizada >= 0) - 1;
+  double abs_diferencia = signo * diferencia_normalizada;
 
-  if ((0 <= diferencia_normalizada) and (diferencia_normalizada <= M_PI)){
-    if (diferencia_normalizada > V_ANGULAR_CTE)
-      v_angular = V_ANGULAR_CTE;
-    else
-      v_angular = (diferencia_normalizada < EPSILON_ANGULAR)? 0: diferencia_normalizada;
-  }
-  else{
-    if (diferencia_normalizada < (-1)*V_ANGULAR_CTE)
-      v_angular = (-1)*V_ANGULAR_CTE;
-    else
-      v_angular = (diferencia_normalizada > (-1)*EPSILON_ANGULAR)? 0: diferencia_normalizada;
+  if (abs_diferencia > V_ANGULAR_CTE) {
+    v_angular = signo * V_ANGULAR_CTE;
+
+    // Notificar que necesitamos girar
+    state = turning;
+  } else {
+    v_angular = (abs_diferencia > EPSILON_ANGULAR) * diferencia_normalizada;
+
+    // resetear el estado si es necesario
+    if (state == turning)
+      state = running;
   }
 }
 
 // Calcula la velocidad lineal.
 // Usar después de calcular la velocidad angular.
 void LocalPlanner::setv_Lineal(){
-  v_lineal =  (v_angular == V_ANGULAR_CTE)? 0.01 : sqrt(delta.x*delta.x + delta.y*delta.y);
+  // La velocidad es cero si estamos girando mucho
+  v_lineal = (state != turning) * sqrt(delta.x * delta.x + delta.y * delta.y);
 }
 
 //Determina que el objetivo se ha alcanzado cuando ambas velocidades son 0.

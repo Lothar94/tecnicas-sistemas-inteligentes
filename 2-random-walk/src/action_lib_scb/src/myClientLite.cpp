@@ -120,13 +120,13 @@ void activeCBGoal0(){
 int main(int argc, char** argv){
   ros::init(argc,argv, "client_node");
 
-  //tf::TransformListener tf(ros::Duration(10));
-  //costmap_2d::Costmap2DROS* localcostmap = new costmap_2d::Costmap2DROS("local_costmap", tf);
-  //costmap_2d::Costmap2DROS* globalcostmap = new costmap_2d::Costmap2DROS("global_costmap", tf);
+  tf::TransformListener tf(ros::Duration(10));
+  costmap_2d::Costmap2DROS* localcostmap = new costmap_2d::Costmap2DROS("local_costmap", tf);
+  costmap_2d::Costmap2DROS* globalcostmap = new costmap_2d::Costmap2DROS("global_costmap", tf);
 
   //Pausamos hasta iniciar el servidor.
-  //localcostmap->pause();
-  //globalcostmap->pause();
+  localcostmap->pause();
+  globalcostmap->pause();
 
   //crear el "action client"
   //true hace que el cliente haga "spin" en su propia hebra
@@ -136,7 +136,7 @@ int main(int argc, char** argv){
   MoveBaseClient ac("mi_move_base", true);  //<- poner "mi_move_base" para hacer mi propio action server.
 
   //Creamos una hebra para actualizar los costmaps en background
-  //boost::thread spin_thread(&spinThread);
+  boost::thread spin_thread(&spinThread);
 
   //Esperar 60 sg. a que el action server esté levantado.
   ROS_INFO("Esperando a que el action server mi_move_base se levante");
@@ -145,15 +145,17 @@ int main(int argc, char** argv){
 
   ROS_INFO("Conectado al servidor mi_move_base");
 
-  //localcostmap->start();
-  //globalcostmap->start();
+  localcostmap->start();
+  globalcostmap->start();
 
   // Read x, y and angle params
   ros::NodeHandle nh;
-  double  x, y, theta;
+
+  double  x, y, theta, res;
   nh.getParam("goal_x", x);
   nh.getParam("goal_y", y);
   nh.getParam("goal_theta", theta);
+  nh.getParam("local_costmap/resolution",res);
 
   //Enviar un objetivo a move_base
   move_base_msgs::MoveBaseGoal goal;
