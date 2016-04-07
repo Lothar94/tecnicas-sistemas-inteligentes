@@ -104,7 +104,8 @@ void LocalPlanner::getOneDeltaRepulsivo(Tupla obstaculo, Tupla &deltaO){
     deltaO.x = -CAMPOREP.intens * (CAMPOREP.spread + CAMPOREP.radius - dist) * cos(angulo);
     deltaO.y = -CAMPOREP.intens * (CAMPOREP.spread + CAMPOREP.radius - dist) * sin(angulo);
   } else if (dist > CAMPOREP.spread + CAMPOREP.radius) {
-    deltaO.x = 0; deltaO.y = 0;
+    deltaO.x = 0;
+    deltaO.y = 0;
   }
 }
 
@@ -185,18 +186,23 @@ void LocalPlanner::setv_Lineal(){
   v_lineal = (state != turning) * sqrt(delta.x * delta.x + delta.y * delta.y);
 }
 
-//Determina que el objetivo se ha alcanzado cuando ambas velocidades son 0.
-bool LocalPlanner::goalAchieved(){
-  bool alcanzado = false;
-  double dist=distancia(pos,posGoal);
+// Establece la velocidad según el estado en que nos encontremos
+PlannerState LocalPlanner::setSpeed() {
+  double dist = distancia(pos, posGoal);
 
   ROS_INFO("Distancia: %f",dist);
 
-  if(dist <= TOLERANCIA){
-    alcanzado = true;
+  if (dist <= TOLERANCIA) {
+    state = goal_achieved;
     v_angular = 0;
     v_lineal = 0;
+  } else {
+    //Rellenar y enviar Twist.
+    geometry_msgs::Twist mensajeTwist;
+    mensajeTwist.linear.x = v_lineal;
+    mensajeTwist.angular.z = v_angular;
+    commandPub.publish(mensajeTwist);
   }
 
-  return alcanzado;
+  return state;
 }

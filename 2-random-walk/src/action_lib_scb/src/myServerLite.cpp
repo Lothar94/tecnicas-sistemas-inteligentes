@@ -101,9 +101,9 @@ public:
       planner.setDeltaTotal();
       planner.setv_Angular();
       planner.setv_Lineal();
-      if (planner.goalAchieved())
+      if (planner.setSpeed() == goal_achieved)
           break;
-      planner.setSpeed();
+
       ROS_INFO("Enviando velocidad (%f,%f)", planner.v_lineal, planner.v_angular);
 
       //Informar del feedback. Consiste en obtener información

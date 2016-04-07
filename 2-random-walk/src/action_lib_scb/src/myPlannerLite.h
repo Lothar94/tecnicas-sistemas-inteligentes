@@ -13,7 +13,8 @@ struct PFConf {double radius; double spread; double intens;};
 enum PlannerState {
   running,
   turning,
-  local_minimum
+  local_minimum,
+  goal_achieved
 };
 
 template <typename T> int signo(T val){
@@ -54,7 +55,6 @@ class LocalPlanner{
             posGoal.y = goal->target_pose.pose.position.y;
         }
 
-        bool goalAchieved();      //Devuelve true cuando se ha alcanzado el objetivo
         void setDeltaAtractivo();
         void getOneDeltaRepulsivo(Tupla posO, Tupla &deltaO);
         void setTotalRepulsivo();
@@ -72,13 +72,7 @@ class LocalPlanner{
             return sqrt((src.x - dst.x) * (src.x - dst.x) +
                         (src.y - dst.y) * (src.y - dst.y));
         }
-        void setSpeed(){
-        //Rellenar y enviar Twist.
-            geometry_msgs::Twist mensajeTwist;
-            mensajeTwist.linear.x = v_lineal;
-            mensajeTwist.angular.z =v_angular;
-            commandPub.publish(mensajeTwist);
-        }
+        PlannerState setSpeed();
 
         PlannerState current_state() {
           return state;
