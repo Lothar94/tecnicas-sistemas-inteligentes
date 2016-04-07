@@ -13,27 +13,23 @@ struct Tupla {double x; double y;};
 bool cancelar = false;
 bool terminar = false;
 
-
-double distancia(Tupla src, Tupla dst){
-    return sqrt((src.x - dst.x) * (src.x - dst.x) +
-                (src.y - dst.y) * (src.y - dst.y));
-}
-
 void spinThread(){
   ros::spin();
 }
 
 //imprime en pantalla el contendio de un costmap
-/*void printCostmap (costmap_2d::Costmap2DROS * costmap_ros) {
+void printCostmap (costmap_2d::Costmap2DROS * costmap_ros) {
   //typedef basic_string<unsigned char> ustring;
 
   costmap_2d::Costmap2D *costmap;
   costmap = costmap_ros-> getCostmap();
 
-  for (int x=0 ;x < costmap->getSizeInCellsX() ;x++)
-      for (int y= 0; y < costmap->getSizeInCellsY();y++){
-          std::cout << (int) costmap->getCost(x,y) << " ";
-        }
+  for (int x=0 ;x < costmap->getSizeInCellsX() ;x++){
+    for (int y= 0; y < costmap->getSizeInCellsY();y++){
+        std::cout << (int) costmap->getCost(x,y) << " ";
+      }
+      std::cout << std::endl;
+    }
 }
 
 std::vector <unsigned int> findFreeNeighborCell (unsigned int CellID, costmap_2d::Costmap2D *costmap){
@@ -60,7 +56,51 @@ std::vector <unsigned int> findFreeNeighborCell (unsigned int CellID, costmap_2d
     }
   }
   return  freeNeighborCells;
-}*/
+}
+
+//función para rellenar una PoseStamped a partir de las coordenadas del mundo obtenidas del costmap.
+void rellenaPoseStamped (double wx, double wy, geometry_msgs::PoseStamped &pose, costmap_2d::Costmap2DROS *costmap){
+    pose.header.stamp =  ros::Time::now();
+    //el marco de coordendas de la posición debe ser el mismo frame que el del goal y este, a su vez, el mismo que el del costmap, por defecto debe tenerlo
+    pose.header.frame_id = costmap->getGlobalFrameID();
+    pose.pose.position.x = wx;
+    pose.pose.position.y = wy;
+    pose.pose.position.z = 0.0;
+    pose.pose.orientation.x = 0.0; //la orientación en principio no interesa.
+    pose.pose.orientation.y = 0.0;
+    pose.pose.orientation.z = 0.0;
+    pose.pose.orientation.w = 1.0;
+}
+
+bool localPlanner(const geometry_msgs::PoseStamped& start, const geometry_msgs::PoseStamped& goal, std::vector<geometry_msgs::PoseStamped>& plan, costmap_2d::Costmap2DROS *costmap_ros){
+    ROS_INFO("localPlanner: Got a start: %.2f, %.2f, and a goal: %.2f, %.2f", start.pose.position.x, start.pose.position.y, goal.pose.position.x, goal.pose.position.y);
+
+    plan.clear();
+    costmap_2d::Costmap2D *costmap = costmap_ros->getCostmap();
+
+    //pasamos el goal y start a coordenadas del costmap
+    double goal_x = goal.pose.position.x;
+    double goal_y = goal.pose.position.y;
+    unsigned int mgoal_x, mgoal_y;
+    //transformamos las coordenadas del mundo a coordenadas del costmap
+    costmap->worldToMap(goal_x,goal_y,mgoal_x, mgoal_y);
+    if ((mgoal_x>=0)&&(mgoal_x < costmap->getSizeInCellsX())&&(mgoal_y>=0 )&&(mgoal_y < costmap->getSizeInCellsY()))
+      unsigned int indice_goal = costmap->getIndex(mgoal_x, mgoal_y);
+    else ROS_WARN("He recibido unas coordenadas del mundo para el objetivo que está fuera de las dimensiones del costmap");
+
+    //transformamos las coordenadas de la posición inicial a coordenadas del costmap.
+    double start_x = start.pose.position.x;
+    double start_y = start.pose.position.y;
+    unsigned int mstart_x, mstart_y;
+    costmap->worldToMap(start_x,start_y, mstart_x, mstart_y);
+    unsigned int start_index = costmap->getIndex(mstart_x, mstart_y);
+
+
+    //*************************************************************************
+    // ya tenemos transformadas las coordenadas del mundo a las del costmap,
+    // ahora hay que implementar la búsqueda de la trayectoria, a partir de aquí.
+    //*************************************************************************
+}
 
 //Proporciona información mientras se intenta alcanzar la meta.
 void feedbackCBGoal0( const move_base_msgs::MoveBaseFeedback::ConstPtr& feedback ){
@@ -147,6 +187,9 @@ int main(int argc, char** argv){
 
   localcostmap->start();
   globalcostmap->start();
+  printCostmap(localcostmap);
+  costmap_2d::Costmap2D *micostmap = localcostmap->getCostmap();
+  std::vector<unsigned int> vecinas = findFreeNeighborCell(1096,micostmap);
 
   // Read x, y and angle params
   ros::NodeHandle nh;
@@ -156,6 +199,8 @@ int main(int argc, char** argv){
   nh.getParam("goal_y", y);
   nh.getParam("goal_theta", theta);
   nh.getParam("local_costmap/resolution",res);
+
+  ROS_INFO("La resolución del costmap local es %f", res);
 
   //Enviar un objetivo a move_base
   move_base_msgs::MoveBaseGoal goal;
