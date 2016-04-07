@@ -37,7 +37,7 @@ class LocalPlanner{
 
         PFConf CAMPOATT;  //Parámetros de configuración (radio, spread, alpha) del campo atractivo.
         PFConf CAMPOREP;  //Parámetros de configuración (radio, spread, beta)del campo repulsivo.
-        const static double TOLERANCIA = 0.1;   //Valor a partir del cual consideramos que el robot está
+        const static double TOLERANCIA = 0.3;   //Valor a partir del cual consideramos que el robot está
                                                   //en la posición objetivo (ver setDeltaAtractivo)
         const static double V_ANGULAR_CTE = M_PI/8;   //Valor de la velocidad angular constante.
         const static double EPSILON_ANGULAR = 0.0009; //Valor a partir del cual entendemos que el robot está en la orientación deseada
