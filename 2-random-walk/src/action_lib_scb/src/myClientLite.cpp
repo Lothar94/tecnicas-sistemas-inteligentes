@@ -13,6 +13,8 @@ struct Tupla {double x; double y;};
 bool cancelar = false;
 bool terminar = false;
 
+static geometry_msgs::PoseStamped pos_actual;
+
 void spinThread(){
   ros::spin();
 }
@@ -72,18 +74,19 @@ void rellenaPoseStamped (double wx, double wy, geometry_msgs::PoseStamped &pose,
     pose.pose.orientation.w = 1.0;
 }
 
-bool localPlanner(const geometry_msgs::PoseStamped& start, const geometry_msgs::PoseStamped& goal, std::vector<geometry_msgs::PoseStamped>& plan, costmap_2d::Costmap2DROS *costmap_ros){
+std::pair<double, double> localPlanner(const geometry_msgs::PoseStamped& start, const geometry_msgs::PoseStamped& goal, costmap_2d::Costmap2DROS *costmap_ros, costmap_2d::Costmap2DROS *global_cm_ros){
     ROS_INFO("localPlanner: Got a start: %.2f, %.2f, and a goal: %.2f, %.2f", start.pose.position.x, start.pose.position.y, goal.pose.position.x, goal.pose.position.y);
 
-    plan.clear();
+    //plan.clear();
     costmap_2d::Costmap2D *costmap = costmap_ros->getCostmap();
+    costmap_2d::Costmap2D *global = global_cm_ros->getCostmap();
 
     //pasamos el goal y start a coordenadas del costmap
-    double goal_x = goal.pose.position.x;
-    double goal_y = goal.pose.position.y;
+    double orig_goal_x = goal.pose.position.x;
+    double orig_goal_y = goal.pose.position.y;
     unsigned int mgoal_x, mgoal_y;
     //transformamos las coordenadas del mundo a coordenadas del costmap
-    costmap->worldToMap(goal_x,goal_y,mgoal_x, mgoal_y);
+    costmap->worldToMap(orig_goal_x,orig_goal_y,mgoal_x, mgoal_y);
     if ((mgoal_x>=0)&&(mgoal_x < costmap->getSizeInCellsX())&&(mgoal_y>=0 )&&(mgoal_y < costmap->getSizeInCellsY()))
       unsigned int indice_goal = costmap->getIndex(mgoal_x, mgoal_y);
     else ROS_WARN("He recibido unas coordenadas del mundo para el objetivo que está fuera de las dimensiones del costmap");
@@ -100,6 +103,48 @@ bool localPlanner(const geometry_msgs::PoseStamped& start, const geometry_msgs::
     // ya tenemos transformadas las coordenadas del mundo a las del costmap,
     // ahora hay que implementar la búsqueda de la trayectoria, a partir de aquí.
     //*************************************************************************
+
+    // Obtiene los vecinos libres desde la posición actual
+    unsigned mi_pos_x, mi_pos_y;
+    costmap->worldToMap(start_x, start_y, mi_pos_x, mi_pos_y);
+    unsigned indice_actual = costmap->getIndex(mi_pos_x, mi_pos_y);
+    std::vector<unsigned> vecinos_libres = findFreeNeighborCell(indice_actual, costmap);
+
+    unsigned gl_pos_x, gl_pos_y;
+    global->worldToMap(start_x, start_y, gl_pos_x, gl_pos_y);
+
+    unsigned mejor_giro_x = 0, mejor_giro_y = 0, total_libres = 0;
+
+    // Estudio cada uno de los giros libres
+    for (std::vector<unsigned>::iterator it = vecinos_libres.begin(); it != vecinos_libres.end(); ++it) {
+      unsigned vecino_x, vecino_y;
+      costmap->indexToCells(*it, vecino_x, vecino_y);
+
+      unsigned dir_x = vecino_x - mi_pos_x, dir_y = vecino_y - mi_pos_y;
+      int celdas_libres;
+      bool ocupado = false;
+
+      for (celdas_libres = 0; !ocupado; ++celdas_libres) {
+        unsigned a_visitar_x = gl_pos_x + celdas_libres * dir_x,
+          a_visitar_y = gl_pos_y + celdas_libres * dir_y;
+
+        ocupado = global->getCost(a_visitar_x, a_visitar_y) != costmap_2d::FREE_SPACE;
+      }
+
+      if (celdas_libres > total_libres) {
+        total_libres = celdas_libres;
+        mejor_giro_x = dir_x;
+        mejor_giro_y = dir_y;
+      }
+    }
+
+    unsigned gl_goal_x = gl_pos_x + total_libres * mejor_giro_x,
+      gl_goal_y = gl_pos_y + total_libres * mejor_giro_y;
+    double goal_x, goal_y;
+
+    global->mapToWorld(gl_goal_x, gl_goal_y, goal_x, goal_y);
+
+    return std::pair<double, double>(goal_x, goal_y);
 }
 
 //Proporciona información mientras se intenta alcanzar la meta.
@@ -115,6 +160,7 @@ void feedbackCBGoal0( const move_base_msgs::MoveBaseFeedback::ConstPtr& feedback
   posicion.y = feedback->base_position.pose.position.y;
 
   static Tupla pos_inicial = {posicion.x, posicion.y};
+  pos_actual = feedback->base_position;
 
   if (cancelar) {
     ROS_INFO("cancelar false");
@@ -189,7 +235,8 @@ int main(int argc, char** argv){
   globalcostmap->start();
   printCostmap(localcostmap);
   costmap_2d::Costmap2D *micostmap = localcostmap->getCostmap();
-  std::vector<unsigned int> vecinas = findFreeNeighborCell(1096,micostmap);
+  costmap_2d::Costmap2D *elcostmap = globalcostmap->getCostmap();
+  //std::vector<unsigned int> vecinas = findFreeNeighborCell(1096,micostmap);
 
   // Read x, y and angle params
   ros::NodeHandle nh;
@@ -223,11 +270,13 @@ int main(int argc, char** argv){
     if(cancelar){
       r.sleep();
 
+      std::pair<double, double> pos_goal = localPlanner(goal.target_pose, pos_actual, localcostmap, globalcostmap);
+
       move_base_msgs::MoveBaseGoal nuevo_goal;
       nuevo_goal.target_pose.header.frame_id = 	"map";
       nuevo_goal.target_pose.header.stamp =	ros::Time::now();
-      nuevo_goal.target_pose.pose.position.x = -8;//-18.174;
-      nuevo_goal.target_pose.pose.position.y = 19;//	25.876;
+      nuevo_goal.target_pose.pose.position.x = pos_goal.first;//-18.174;
+      nuevo_goal.target_pose.pose.position.y = pos_goal.second;//	25.876;
       nuevo_goal.target_pose.pose.orientation.w = 1;//	1;
 
       ROS_INFO("El goal actual ha sido cancelado.");
