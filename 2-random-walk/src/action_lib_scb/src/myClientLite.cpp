@@ -296,7 +296,7 @@ int main(int argc, char** argv){
           ROS_INFO("Esperando al resultado de la nueva acción.");
           ac.waitForResult();
         }
-        num_divisiones = (num_divisiones+1)%6 + 1;
+        num_divisiones = (num_divisiones+1)%4 + 1;
         if (ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED){
           cancelar = false;
           ac.sendGoal(goal, &doneCBGoal0, &activeCBGoal0, &feedbackCBGoal0);
