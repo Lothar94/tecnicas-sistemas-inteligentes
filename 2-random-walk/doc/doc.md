@@ -37,17 +37,21 @@ geometry: "a4paper, top=2.5cm, bottom=2.5cm, left=3cm, right=3cm"
 
   Al encontrarnos muy próximos a un obstáculo, el cálculo de la componente repulsiva dará como resultado una velocidad lineal muy alta, consecuencia de querer alejarnos cuanto antes de dicho obstáculo. Sin embargo, como tratamos la velocidad lineal y la velocidad angular por separado, al aumentar la velocidad lineal el robot no tiene tiempo de girar antes de chocarse con el obstáculo, dando la sensación de que el robot se lanza hacia él.
 
-  Como solución, hemos decidido hacer 0 la velocidad lineal del robot cuando se encuentra con un obstáculo y tiene que girar para evitarlo. De esta forma, permitimos al robot tomar la dirección deseada antes de moverse, evitando así lanzarnos hacia el obstáculo.
+  Como solución, hemos decidido hacer 0 la velocidad lineal del robot cuando se encuentra con un obstáculo y tiene que girar para evitarlo. De esta forma, permitimos al robot tomar la dirección deseada antes de moverse, evitando así lanzarnos hacia el obstáculo. Cuando esto ocurra, tendremos al robot en un estado de giro, que hará que al estar activado el cálculo de la velocidad lineal de 0 como resultado.
 
   d. Conseguir que, una vez que el robot se queda atrapado en una esquina (en un mínimo local), trate de salir de esta situación. ¿Cómo conseguirlo sin utilizar memoria (es decir, información de un mapa)?
 
-
+  Cuando detectamos que el robot está atascado, cancelamos el goal actual y enviamos un nuevo goal, para intentar escapar de este mínimo local. En caso de no conseguir este segundo goal, cancelamos la acción del robot. Detallamos este proceso más a fondo en el apartado 2-d. 
 
   e. Conseguir suprimir las oscilaciones del robot. ¿Cuál es la causa de las oscilaciones? ¿Cómo eliminarlas en la mayor medida posible?
+
+  Para evitar pequeñas oscilaciones, hemos aumentado la tolerancia del robot.
 
 # Tareas para mejorar el comportamiento del robot mediante técnicas de navegación local con mapa.
 
   a. Contemplar el uso de distintos mapas para la experimentación. Los mapas pueden generarse a partir de una imagen mediante el paquete mapserver. Ver explicación sobre manejo de mapas y mundos simulados en la documentación adjunta.
+
+  Incluímos capturas de pantalla con el uso de distintos mapas sobre los que hemos experimentado.
 
 
   b. Usar dos costmaps en el cliente: uno local configurado para tener una ventana activa que se desplace con el robot y otro global para tener una información sobre el costmap del mapa completo.
