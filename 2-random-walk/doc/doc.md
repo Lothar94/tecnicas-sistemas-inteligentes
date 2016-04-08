@@ -49,12 +49,12 @@ header-includes:
 ## Conseguir que, una vez que el robot se queda atrapado en una esquina (en un mínimo local), trate de salir de esta situación
 **¿Cómo conseguirlo sin utilizar memoria (es decir, información de un mapa)?**
 
-  Cuando detectamos que el robot está atascado, cancelamos el goal actual y enviamos un nuevo goal, para intentar escapar de este mínimo local. En caso de no conseguir este segundo goal, cancelamos la acción del robot. Detallamos este proceso más a fondo en el apartado 2-d. 
+  Cuando detectamos que el robot está atascado, cancelamos el goal actual y enviamos un nuevo goal, para intentar escapar de este mínimo local. Calculamos este nuevo goal utilizando el costmap, intentando dirigirnos hacia la zona que tenga menos obstáculos. En caso de no conseguir alcanzar este segundo goal, cancelamos la acción del robot. Si llegamos hasta él, restauramos el goal inicial. 
 
 ## Conseguir suprimir las oscilaciones del robot
 **¿Cuál es la causa de las oscilaciones? ¿Cómo eliminarlas en la mayor medida posible?**
 
-  Para evitar pequeñas oscilaciones, hemos aumentado la tolerancia del robot.
+  Hemos detectado oscilaciones en el robot cuando está muy cerca del objetivo. Esto se debe a que, al intentar encarar el objetivo, el mínimo giro posible hace que nos pasemos y tengamos que girar hacia el otro lado, volviendo a darse la misma situación. Para evitarlo, hemos aumentado la tolerancia en el ángulo del robot, subiendo el valor de la componente EPSILON_ANGULAR.
 
 # Tareas para mejorar el comportamiento del robot mediante técnicas de navegación local con mapa.
 
@@ -81,3 +81,5 @@ header-includes:
 ## Mejorar el comportamiento del servidor para ajustarse a los nuevos servicios que le va a requerir el cliente.
 
 # Consideraciones adicionales.
+
+En la implementación del método "setTotalRepulsivo" en el archivo myPlannerLite.cpp se ha detectado un problema a la hora de acceder al vector que almacena los obstáculos que el robot está visualizando. Es posible que mientras se está calculando la componente repulsiva total, resultado de la suma de las componentes, se ejecute el callback "scanCallBack", que cambia el vector de obstáculos, pudiendo modificarlo y derivar en un acceso a posiciones del vector que no están ocupadas, generando un _core_ y abortando el programa. Para solucionar esto, en el callback usamos un método swap con un nuevo vector en el que vamos añadiendo los nuevos obstáculos.
