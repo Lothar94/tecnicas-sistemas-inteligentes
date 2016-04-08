@@ -74,8 +74,11 @@ void rellenaPoseStamped (double wx, double wy, geometry_msgs::PoseStamped &pose,
     pose.pose.orientation.w = 1.0;
 }
 
-std::pair<double, double> localPlanner(const geometry_msgs::PoseStamped& start, const geometry_msgs::PoseStamped& goal, costmap_2d::Costmap2DROS *costmap_ros, costmap_2d::Costmap2DROS *global_cm_ros){
+std::pair<double, double> localPlanner(const geometry_msgs::PoseStamped& start, const geometry_msgs::PoseStamped& goal, costmap_2d::Costmap2DROS *costmap_ros, costmap_2d::Costmap2DROS *global_cm_ros, int ajuste){
     ROS_INFO("localPlanner: Got a start: %.2f, %.2f, and a goal: %.2f, %.2f", start.pose.position.x, start.pose.position.y, goal.pose.position.x, goal.pose.position.y);
+    ROS_INFO("ajuste: %i", ajuste);
+
+    static int last_dir_x = 0, last_dir_y = 0;
 
     //plan.clear();
     costmap_2d::Costmap2D *costmap = costmap_ros->getCostmap();
@@ -120,7 +123,10 @@ std::pair<double, double> localPlanner(const geometry_msgs::PoseStamped& start, 
       unsigned vecino_x, vecino_y;
       costmap->indexToCells(*it, vecino_x, vecino_y);
 
-      unsigned dir_x = vecino_x - mi_pos_x, dir_y = vecino_y - mi_pos_y;
+      int dir_x = vecino_x - mi_pos_x, dir_y = vecino_y - mi_pos_y;
+      if (dir_x == - last_dir_x && dir_y == - last_dir_y)
+        continue;
+
       int celdas_libres;
       bool ocupado = false;
 
@@ -130,19 +136,19 @@ std::pair<double, double> localPlanner(const geometry_msgs::PoseStamped& start, 
 
         ocupado = global->getCost(a_visitar_x, a_visitar_y) != costmap_2d::FREE_SPACE;
       }
-      celdas_libres -= 6; // Evitamos acercarnos a paredes
+      //celdas_libres -= 6; // Evitamos acercarnos a paredes
 
       if (celdas_libres > total_libres) {
         total_libres = celdas_libres;
-        mejor_giro_x = dir_x;
-        mejor_giro_y = dir_y;
+        last_dir_x = mejor_giro_x = dir_x;
+        last_dir_y = mejor_giro_y = dir_y;
       }
 
       ROS_INFO("Tenemos %d celdas libres en la dirección %d, %d", celdas_libres, dir_x, dir_y);
     }
 
-    unsigned gl_goal_x = gl_pos_x + total_libres * mejor_giro_x,
-      gl_goal_y = gl_pos_y + total_libres * mejor_giro_y;
+    unsigned gl_goal_x = gl_pos_x + ((total_libres-8)/ajuste) * mejor_giro_x,
+      gl_goal_y = gl_pos_y + ((total_libres-8)/ajuste) * mejor_giro_y;
     double goal_x, goal_y;
 
     global->mapToWorld(gl_goal_x, gl_goal_y, goal_x, goal_y);
@@ -178,6 +184,7 @@ void feedbackCBGoal0( const move_base_msgs::MoveBaseFeedback::ConstPtr& feedback
     } else if (ros::Time::now().toSec() - tiempo_inicial >= tiempo_maximo) {
       cancelar = true;
       ROS_INFO("cancelando a los %f segundos", ros::Time::now().toSec() - tiempo_inicial);
+      primera_igual = true;
     }
   } else {
     primera_igual = true;
@@ -187,8 +194,8 @@ void feedbackCBGoal0( const move_base_msgs::MoveBaseFeedback::ConstPtr& feedback
 }
 
 //Detecta si se alcanzó la meta o se canceló.
-void doneCBGoal0( const actionlib::SimpleClientGoalState& state,
-   const move_base_msgs::MoveBaseResultConstPtr& result ){
+void doneCBGoal0( const actionlib::SimpleClientGoalState state,
+   const move_base_msgs::MoveBaseResultConstPtr result ){
   if (state.state_ == actionlib::SimpleClientGoalState::SUCCEEDED){
     ROS_INFO("¡¡ Objetivo alcanzado !!");
     terminar = true;
@@ -266,34 +273,35 @@ int main(int argc, char** argv){
 
   ros::Rate r(5); // 5 hz
 
+  int num_divisiones = 1;
 
   while(!terminar){
-
-
     if(cancelar){
       r.sleep();
-
-      std::pair<double, double> pos_goal = localPlanner(pos_actual, goal.target_pose, localcostmap, globalcostmap);
-      ROS_INFO("Posición del goal secundario: %f, %f", pos_goal.first, pos_goal.second);
-      move_base_msgs::MoveBaseGoal nuevo_goal;
-      nuevo_goal.target_pose.header.frame_id = 	"map";
-      nuevo_goal.target_pose.header.stamp =	ros::Time::now();
-      nuevo_goal.target_pose.pose.position.x = pos_goal.first;//-18.174;
-      nuevo_goal.target_pose.pose.position.y = pos_goal.second;//	25.876;
-      nuevo_goal.target_pose.pose.orientation.w = 1;//	1;
 
       ROS_INFO("El goal actual ha sido cancelado.");
       ac.cancelGoal();
       ac.waitForResult(ros::Duration(10.0));
       if (ac.getState() == actionlib::SimpleClientGoalState::PREEMPTED){
-        ac.sendGoal(nuevo_goal);
-        ROS_INFO("Esperando al resultado de la nueva acción.");
-        ac.waitForResult();
+        for(int i =0;i < num_divisiones; i++){
+          std::pair<double, double> pos_goal = localPlanner(pos_actual, goal.target_pose, localcostmap, globalcostmap, std::min(num_divisiones,3));
+          ROS_INFO("Posición del goal secundario: %f, %f", pos_goal.first, pos_goal.second);
+          move_base_msgs::MoveBaseGoal nuevo_goal;
+          nuevo_goal.target_pose.header.frame_id = 	"map";
+          nuevo_goal.target_pose.header.stamp =	ros::Time::now();
+          nuevo_goal.target_pose.pose.position.x = pos_goal.first;//-18.174;
+          nuevo_goal.target_pose.pose.position.y = pos_goal.second;//	25.876;
+          nuevo_goal.target_pose.pose.orientation.w = 1;//	1;
+          ac.sendGoal(nuevo_goal);
+          ROS_INFO("Esperando al resultado de la nueva acción.");
+          ac.waitForResult();
+        }
+        num_divisiones = (num_divisiones+1)%4 + 1;
         if (ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED){
+          cancelar = false;
           ac.sendGoal(goal, &doneCBGoal0, &activeCBGoal0, &feedbackCBGoal0);
           //Esperar al retorno de la acción
           ROS_INFO("Esperando al resultado  de la acción");
-          cancelar = false;
         }
         else{
           ROS_INFO("Objetivo secundario fallido.");
