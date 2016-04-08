@@ -94,10 +94,6 @@ std::pair<double, double> localPlanner(const geometry_msgs::PoseStamped& start, 
     //transformamos las coordenadas de la posición inicial a coordenadas del costmap.
     double start_x = start.pose.position.x;
     double start_y = start.pose.position.y;
-    unsigned int mstart_x, mstart_y;
-    costmap->worldToMap(start_x,start_y, mstart_x, mstart_y);
-    unsigned int start_index = costmap->getIndex(mstart_x, mstart_y);
-
 
     //*************************************************************************
     // ya tenemos transformadas las coordenadas del mundo a las del costmap,
@@ -107,13 +103,17 @@ std::pair<double, double> localPlanner(const geometry_msgs::PoseStamped& start, 
     // Obtiene los vecinos libres desde la posición actual
     unsigned mi_pos_x, mi_pos_y;
     costmap->worldToMap(start_x, start_y, mi_pos_x, mi_pos_y);
+    mi_pos_x = mi_pos_y = 2;
     unsigned indice_actual = costmap->getIndex(mi_pos_x, mi_pos_y);
     std::vector<unsigned> vecinos_libres = findFreeNeighborCell(indice_actual, costmap);
+    ROS_INFO("Mundo: %f, %f; Mapa: %d, %d; Index: %d", start_x, start_y, mi_pos_x, mi_pos_y, indice_actual);
 
     unsigned gl_pos_x, gl_pos_y;
     global->worldToMap(start_x, start_y, gl_pos_x, gl_pos_y);
 
     unsigned mejor_giro_x = 0, mejor_giro_y = 0, total_libres = 0;
+
+    ROS_INFO("Vecinos libres: %d", vecinos_libres.size());
 
     // Estudio cada uno de los giros libres
     for (std::vector<unsigned>::iterator it = vecinos_libres.begin(); it != vecinos_libres.end(); ++it) {
@@ -130,12 +130,15 @@ std::pair<double, double> localPlanner(const geometry_msgs::PoseStamped& start, 
 
         ocupado = global->getCost(a_visitar_x, a_visitar_y) != costmap_2d::FREE_SPACE;
       }
+      celdas_libres -= 6; // Evitamos acercarnos a paredes
 
       if (celdas_libres > total_libres) {
         total_libres = celdas_libres;
         mejor_giro_x = dir_x;
         mejor_giro_y = dir_y;
       }
+
+      ROS_INFO("Tenemos %d celdas libres en la dirección %d, %d", celdas_libres, dir_x, dir_y);
     }
 
     unsigned gl_goal_x = gl_pos_x + total_libres * mejor_giro_x,
@@ -155,7 +158,7 @@ void feedbackCBGoal0( const move_base_msgs::MoveBaseFeedback::ConstPtr& feedback
   static bool primera = true;
   static bool primera_igual = true;
 
-  const double tiempo_maximo = 3.0;
+  const double tiempo_maximo = 5.0;
   posicion.x = feedback->base_position.pose.position.x;
   posicion.y = feedback->base_position.pose.position.y;
 
@@ -254,9 +257,9 @@ int main(int argc, char** argv){
   std::cerr << "x,y,theta:" <<x<<y<<theta<< std::endl;
   goal.target_pose.header.frame_id = 	"map";
   goal.target_pose.header.stamp =	ros::Time::now();
-  goal.target_pose.pose.position.x =-14;//-18.174;
-  goal.target_pose.pose.position.y =23;//	25.876;
-  goal.target_pose.pose.orientation.w =1;//	1;
+  goal.target_pose.pose.position.x = x;//-18.174;
+  goal.target_pose.pose.position.y = y;//	25.876;
+  goal.target_pose.pose.orientation.w = theta;//	1;
 
   ROS_INFO("Enviando el objetivo");
   ac.sendGoal(goal, &doneCBGoal0, &activeCBGoal0, &feedbackCBGoal0);
@@ -270,8 +273,8 @@ int main(int argc, char** argv){
     if(cancelar){
       r.sleep();
 
-      std::pair<double, double> pos_goal = localPlanner(goal.target_pose, pos_actual, localcostmap, globalcostmap);
-
+      std::pair<double, double> pos_goal = localPlanner(pos_actual, goal.target_pose, localcostmap, globalcostmap);
+      ROS_INFO("Posición del goal secundario: %f, %f", pos_goal.first, pos_goal.second);
       move_base_msgs::MoveBaseGoal nuevo_goal;
       nuevo_goal.target_pose.header.frame_id = 	"map";
       nuevo_goal.target_pose.header.stamp =	ros::Time::now();
