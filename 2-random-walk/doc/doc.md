@@ -1,6 +1,6 @@
 ---
 title: "Técnicas de los Sistemas Inteligentes"
-subtitle: "Práctica 1 - Entrega 2"
+subtitle: "Práctica 1 - Entrega 2: Navegación local con y sin mapa"
 author:
   - José Pimentel Mesones
   - Lothar Soto Palma
@@ -9,23 +9,29 @@ author:
 toc: true
 toc-depth: 2
 numbersections: true
-
+lang: spanish
+polyglossia-lang.name: spanish
 mainfont: Droid Serif
 monofont: Source Code Pro
 
 geometry: "a4paper, top=2.5cm, bottom=2.5cm, left=3cm, right=3cm"
-
+abstract:
+  Las técnicas basadas en navegación local pretenden guiar a un agente a lo largo de un mapa de forma que la trayectoria que sigue no está predefinida, es decir, se toman decisiones locales. En esta práctica se ha completado una implementación de un agente reactivo con navegación mediante campos de potencial con un mayor ángulo de visión, campos atractivos y repulsivos y detección de mínimos locales. Asimismo, se ha añadido cierta funcionalidad al agente, cono una gestión de la huida de mínimos locales mediante una selección heurística de objetivos secundarios atendiendo a los mapas de coste.
+header-includes:
+  - \renewcommand{\thesubsection}{\thesection.\alph{subsection}}
 ---
 
 \pagebreak
 
-# Tareas para mejorar el comportamiento reactivo del robot respecto al uso de campos de potencial (navegación local sin mapa).
+# Tareas para mejorar el comportamiento reactivo del robot respecto al uso de campos de potencial (navegación local sin mapa)
 
-  a. Conseguir aumentar el campo de visión. El campo de visión del robot simulado es de 270º, ¿cómo hacer para que el escaneo laser sea mayor que el actualmente implementado?
+## Conseguir aumentar el campo de visión
+  **El campo de visión del robot simulado es de 270º, ¿cómo hacer para que el escaneo laser sea mayor que el actualmente implementado?**
 
   En el archivo _myPlannerLite.h_ hemos cambiado el valor de las constantes MIN_SCAN_ANGLE_RAD y MAX_SCAN_ANGLE_RAD a -135.0/180*M_PI y 135.0/180*M_PI respectivamente, para aumentar el ángulo de visión a un total de 270º.
 
-  b. Conseguir que no se demore tanto tiempo en detenerse cuando esté lo suficientemente cerca del objetivo. ¿Por qué tarda tanto en detenerse cuando está próximo al objetivo? ¿Cómo solucionarlo?
+## Conseguir que no se demore tanto tiempo en detenerse cuando esté lo suficientemente cerca del objetivo
+**¿Por qué tarda tanto en detenerse cuando está próximo al objetivo? ¿Cómo solucionarlo?**
 
   Cuando calculamos la componente atractiva y nos encontramos dentro del campo de atracción (representado por la componente _spread_), el módulo de la velocidad es inversamente proporcional a la distancia al objetivo, por lo que cuanto más nos acercamos a él, más lento se mueve el robot.
 
@@ -33,39 +39,45 @@ geometry: "a4paper, top=2.5cm, bottom=2.5cm, left=3cm, right=3cm"
 
   Tomamos esta velocidad constante como aquella obtenida cuando estamos a una distancia del objetivo de _spread_/2.
 
-  c. Conseguir que el robot no tenga "comportamiento suicida", es decir, cuando está cerca de un obstáculo acelera y choca con él. ¿Cuál es la causa de este comportamiento suicida? ¿Cómo evitarlo?
+## Conseguir que el robot no tenga "comportamiento suicida", es decir, cuando está cerca de un obstáculo acelera y choca con él
+**¿Cuál es la causa de este comportamiento suicida? ¿Cómo evitarlo?**
 
   Al encontrarnos muy próximos a un obstáculo, el cálculo de la componente repulsiva dará como resultado una velocidad lineal muy alta, consecuencia de querer alejarnos cuanto antes de dicho obstáculo. Sin embargo, como tratamos la velocidad lineal y la velocidad angular por separado, al aumentar la velocidad lineal el robot no tiene tiempo de girar antes de chocarse con el obstáculo, dando la sensación de que el robot se lanza hacia él.
 
   Como solución, hemos decidido hacer 0 la velocidad lineal del robot cuando se encuentra con un obstáculo y tiene que girar para evitarlo. De esta forma, permitimos al robot tomar la dirección deseada antes de moverse, evitando así lanzarnos hacia el obstáculo. Cuando esto ocurra, tendremos al robot en un estado de giro, que hará que al estar activado el cálculo de la velocidad lineal de 0 como resultado.
 
-  d. Conseguir que, una vez que el robot se queda atrapado en una esquina (en un mínimo local), trate de salir de esta situación. ¿Cómo conseguirlo sin utilizar memoria (es decir, información de un mapa)?
+## Conseguir que, una vez que el robot se queda atrapado en una esquina (en un mínimo local), trate de salir de esta situación
+**¿Cómo conseguirlo sin utilizar memoria (es decir, información de un mapa)?**
 
   Cuando detectamos que el robot está atascado, cancelamos el goal actual y enviamos un nuevo goal, para intentar escapar de este mínimo local. En caso de no conseguir este segundo goal, cancelamos la acción del robot. Detallamos este proceso más a fondo en el apartado 2-d. 
 
-  e. Conseguir suprimir las oscilaciones del robot. ¿Cuál es la causa de las oscilaciones? ¿Cómo eliminarlas en la mayor medida posible?
+## Conseguir suprimir las oscilaciones del robot
+**¿Cuál es la causa de las oscilaciones? ¿Cómo eliminarlas en la mayor medida posible?**
 
   Para evitar pequeñas oscilaciones, hemos aumentado la tolerancia del robot.
 
 # Tareas para mejorar el comportamiento del robot mediante técnicas de navegación local con mapa.
 
-  a. Contemplar el uso de distintos mapas para la experimentación. Los mapas pueden generarse a partir de una imagen mediante el paquete mapserver. Ver explicación sobre manejo de mapas y mundos simulados en la documentación adjunta.
+##Contemplar el uso de distintos mapas para la experimentación
+**Los mapas pueden generarse a partir de una imagen mediante el paquete mapserver. Ver explicación sobre manejo de mapas y mundos simulados en la documentación adjunta.**
 
   Incluímos capturas de pantalla con el uso de distintos mapas sobre los que hemos experimentado.
 
 
-  b. Usar dos costmaps en el cliente: uno local configurado para tener una ventana activa que se desplace con el robot y otro global para tener una información sobre el costmap del mapa completo.
+## Usar dos costmaps en el cliente
+**Uno local configurado para tener una ventana activa que se desplace con el robot y otro global para tener una información sobre el costmap del mapa completo.**
 
 
-  c. Usar el costmap local para poder encontrar una trayectoria local segura desde la pose actual y que finalice en un punto (en el que no haya colisión) de la frontera del costmap lo más próximo posible al objetivo. Esto se llevará a cabo mediante un proceso de búsqueda heurística teniendo en cuenta las siguientes fuentes de información: la distancia al objetivo, costes de las celdas del costmap local local y muestras del escaneo láser.
+## Usar el costmap local para poder encontrar una trayectoria local segura desde la pose actual
+**y que finalice en un punto (en el que no haya colisión) de la frontera del costmap lo más próximo posible al objetivo. Esto se llevará a cabo mediante un proceso de búsqueda heurística teniendo en cuenta las siguientes fuentes de información: la distancia al objetivo, costes de las celdas del costmap local local y muestras del escaneo láser.**
 
-  d. Mejorar el comportamiento del cliente en los siguientes aspectos:
-    - Detectar que el robot está "atascado" (demasiado tiempo en una región sin avanzar al objetivo), usando información de "feedback".
-    - En caso de atasco cancelar goal actual.
-    - Determinar un nuevo goal para sacarlo del atasco (usando el proceso de búsqueda local).
-    - Enviar el nuevo goal, detectar que se ha alcanzado, y volver a enviar el goal original.
+## Mejorar el comportamiento del cliente en los siguientes aspectos:
+  - Detectar que el robot está "atascado" (demasiado tiempo en una región sin avanzar al objetivo), usando información de "feedback".
+  - En caso de atasco cancelar goal actual.
+  - Determinar un nuevo goal para sacarlo del atasco (usando el proceso de búsqueda local).
+  - Enviar el nuevo goal, detectar que se ha alcanzado, y volver a enviar el goal original.
 
 
-  e. Mejorar el comportamiento del servidor para ajustarse a los nuevos servicios que le va a requerir el cliente.
+## Mejorar el comportamiento del servidor para ajustarse a los nuevos servicios que le va a requerir el cliente.
 
 # Consideraciones adicionales.
