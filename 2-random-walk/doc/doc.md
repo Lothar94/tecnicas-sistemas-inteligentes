@@ -76,7 +76,7 @@ header-includes:
 
   ![\label{atascoautolab} Atasco en goal secundario](img/9-atascado.png)
 
-  En esta prueba se estableció el goal en el punto (-1.9,11.1) de forma que el robot se acerca inicialmente hasta el punto encontrandose con una pared y posteriormente aplicando la heurística programada como se ve en \ref{idaautolab} y \ref{noalcanzadoautolab}. Despues de aplicarse el robot buscará una nueva ruta asignandose goal secundarios como en \ref{restablecerautolab}, una de ellas obliga a pasar por el pasillo anteriormente mencionado, como este nos es capaz dependiendo de donde coloque el punto el robot se atasca como ocurria en la figura \ref{atascoautolab}.
+  En esta prueba se estableció el goal en el punto (-1.9,11.1) de forma que el robot se acerca inicialmente hasta el punto encontrandose con una pared y posteriormente aplicando la heurística programada como se ve en \ref{idaautolab} y \ref{noalcanzadoautolab}. Despues de aplicarse el robot buscará una nueva ruta asignandose goal secundarios como en \ref{restablecerautolab}, una de ellas obliga a pasar por el pasillo anteriormente mencionado, como este nos es capaz dependiendo de donde se coloque el nuevo goal el robot se atasca como ocurria en la figura \ref{atascoautolab}.
 
   ![\label{idaautolab} Ida hacia el goal principal](img/6-ida.png)
 
@@ -87,6 +87,8 @@ header-includes:
 
 ## Usar dos costmaps en el cliente
 **Uno local configurado para tener una ventana activa que se desplace con el robot y otro global para tener una información sobre el costmap del mapa completo.**
+
+La visualización y control de los costmaps se lleva a cabo en la herramienta Rviz, y estos nos permiten implementar nuevas políticas de asignación de goals.
 
 ![\label{costmaps} Visualización de los costmaps con Rviz](img/10-costmaps.png)
 
