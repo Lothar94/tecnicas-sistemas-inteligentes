@@ -167,7 +167,7 @@ void LocalPlanner::setv_Angular(){
   double abs_diferencia = signo * diferencia_normalizada;
 
   // resetear el estado
-  //state = running;
+  state = running;
 
   if (v_lineal < MIN_LIN_SPEED_FOR_TURNS) {
     v_angular = 0;
