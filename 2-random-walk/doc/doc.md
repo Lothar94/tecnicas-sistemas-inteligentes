@@ -68,29 +68,54 @@ header-includes:
 
   Incluímos capturas de pantalla con el uso de distintos mapas sobre los que hemos experimentado.
 
-  ![\label{simplerooms} Mapa: Simple rooms](img/4-mapa1.png)
+\begin{figure}[hbtp]
+\centering
+\includegraphics[width=0.6\textwidth]{img/4-mapa1.png}
+\caption{\label{simplerooms} Mapa: Simple rooms}
+\end{figure}
 
-  ![\label{autolab} Mapa: autolab](img/5-mapa2.png)
+\begin{figure}[hbtp]
+\centering
+\includegraphics[width=0.6\textwidth]{img/5-mapa2.png}
+\caption{\label{autolab} Mapa: autolab}
+\end{figure}
 
-  El comportamiento del robot en el mapa *Simple_rooms* se explica junto a la heurística. En el caso del mapa *autolab* el principal problema que se puede obtener es que un goal secudario no sea capaz de llegar a completarse con éxito puesto hay un pequeño pasillo a través del cual el robot no es capaz de pasar o pasa muy lentamente dependiendo de la asignación del goal secudario con la heurística como observamos en la figura \ref{atascoautolab}.
+  El comportamiento del robot en el mapa *Simple_rooms* se explica junto a la heurística en la sección \ref{heuristica}. En el caso del mapa *autolab* el principal problema que se puede obtener es que un goal secudario no sea capaz de llegar a completarse con éxito puesto hay un pequeño pasillo a través del cual el robot no es capaz de pasar o pasa muy lentamente dependiendo de la asignación del goal secudario con la heurística como observamos en la figura \ref{atascoautolab}.
 
-  ![\label{atascoautolab} Atasco en goal secundario](img/9-atascado.png)
+\begin{figure}[hbtp]
+\centering
+\includegraphics[width=0.6\textwidth]{img/9-atascado.png}
+\caption{\label{atascoautolab} Atasco en goal secundario}
+\end{figure}
 
   En esta prueba se estableció el goal en el punto (-1.9,11.1) de forma que el robot se acerca inicialmente hasta el punto encontrandose con una pared y posteriormente aplicando la heurística programada como se ve en \ref{idaautolab} y \ref{noalcanzadoautolab}. Despues de aplicarse el robot buscará una nueva ruta asignandose goal secundarios como en \ref{restablecerautolab}, una de ellas obliga a pasar por el pasillo anteriormente mencionado, como este nos es capaz dependiendo de donde se coloque el nuevo goal el robot se atasca como ocurria en la figura \ref{atascoautolab}.
 
-  ![\label{idaautolab} Ida hacia el goal principal](img/6-ida.png)
-
-  ![\label{noalcanzadoautolab} Goal principal no alcanzable](img/7-noalcanzado.png)
-
-  ![\label{restablecerautolab} Aplicación de la heurística](img/8-restableciendo.png)
-
+  \begin{figure}[hbtp]
+  \centering
+  \includegraphics[width=0.6\textwidth]{img/6-ida.png}
+  \caption{\label{idaautolab} Ida hacia el goal principal}
+  \end{figure}
+  \begin{figure}[hbtp]
+  \centering
+  \includegraphics[width=0.6\textwidth]{img/7-noalcanzado.png}
+  \caption{\label{noalcanzadoautolab} Goal principal no alcanzable}
+  \end{figure}
+  \begin{figure}[hbtp]
+  \centering
+  \includegraphics[width=0.6\textwidth]{img/8-restableciendo.png}
+  \caption{\label{restablecerautolab} Aplicación de la heurística}
+  \end{figure}
 
 ## Usar dos costmaps en el cliente
 **Uno local configurado para tener una ventana activa que se desplace con el robot y otro global para tener una información sobre el costmap del mapa completo.**
 
 La visualización y control de los costmaps se lleva a cabo en la herramienta Rviz, y estos nos permiten implementar nuevas políticas de asignación de goals.
 
-![\label{costmaps} Visualización de los costmaps con Rviz](img/10-costmaps.png)
+\begin{figure}[hbtp]
+\centering
+\includegraphics[width=0.8\textwidth]{img/10-costmaps.png}
+\caption{\label{costmaps} Visualización de los costmaps con Rviz}
+\end{figure}
 
 ## Usar el costmap local para poder encontrar una trayectoria local segura desde la pose actual
 \label{heuristica}
@@ -121,8 +146,6 @@ Si se restablece el objetivo inicial en otro punto, el robot podrá ser capaz de
 
 Como se explica en la sección \ref{gestionminlocal}, la función gestora de eventos de *feedback* analiza el tiempo que transcurre sin que el robot se traslade. Cuando se decide que se está ante un mínimo local, se cancela el objetivo primario. Una vez se ha cancelado, el cliente recurre a la heurística de *huida* que trata de buscar una trayectoria alternativa como se desarrolla en \ref{heuristica}. Se utiliza el método `waitForResult` del *action client* para esperar a que se alcance el objetivo secundario planeado. Si se alcanza sarisfactoriamente, se restablece el objetivo primario para intentar construir una nueva trayectoria hacia el mismo.
 
-
-## Mejorar el comportamiento del servidor para ajustarse a los nuevos servicios que le va a requerir el cliente.
 
 # Consideraciones adicionales.
 
