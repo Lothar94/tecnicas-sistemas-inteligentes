@@ -1,0 +1,4 @@
+<launch>
+	
+	<node name="map_server" pkg="map_server" type="map_server" args="$(find e2subgrupo2_5_costmaps)/maps/simple_rooms.png 0.1" />
+</launch>

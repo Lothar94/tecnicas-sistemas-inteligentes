@@ -1,0 +1,24 @@
+<launch>
+  <master auto="start"/>
+  <param name="/use_sim_time" value="true"/>
+
+  <node name="map_server" pkg="map_server" type="map_server" args="$(find e2subgrupo2_5_stage)/configuration/maps/mi-maze.yaml" respawn="false"/>
+ <node pkg="stage_ros" type="stageros" name="stageros" args="$(find e2subgrupo2_5_stage)/configuration/mundos/mi-simple.world" respawn="false">
+             <param name="base_watchdog_timeout" value="0.2"/>
+       </node>
+
+  <node name="server_scb_nod" pkg="e2subgrupo2_5_actionlib" type="server_scb_node"/>
+  <node name="fake_localization" pkg="fake_localization" type="fake_localization" respawn="false" />
+ <node name="rviz" pkg="rviz" type="rviz" />
+
+  <node name="client_scb_nod" pkg="e2subgrupo2_5_actionlib" type="client_scb_node" output="screen">
+    <rosparam file="$(find e2subgrupo2_5_costmaps)/configuration/costmap_common_params.yaml" command="load" ns="global_costmap" />
+    <rosparam file="$(find e2subgrupo2_5_costmaps)/configuration/costmap_common_params.yaml" command="load" ns="local_costmap" />
+    <rosparam file="$(find e2subgrupo2_5_costmaps)/configuration/local_costmap_params.yaml"  command="load" />
+    <rosparam file="$(find e2subgrupo2_5_costmaps)/configuration/global_costmap_params.yaml" command="load" />
+  </node>
+  <param name="goal_x" value="-1.9" />
+  <param name="goal_y" value="11.1" />
+  <param name="goal_theta" value="1" />
+
+</launch>

@@ -1,3 +1,0 @@
-Como obtener y subcribirse a un costmap.
-
-http://answers.ros.org/question/214450/obtain-a-copy-of-the-global_costmap/
