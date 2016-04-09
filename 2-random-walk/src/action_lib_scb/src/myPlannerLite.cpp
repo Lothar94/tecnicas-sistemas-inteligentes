@@ -184,8 +184,7 @@ void LocalPlanner::setv_Angular(){
 // Calcula la velocidad lineal.
 // Usar después de calcular la velocidad angular.
 void LocalPlanner::setv_Lineal(){
-  int sentido = 2 * (state != backwards) - 1;
-  v_lineal = sentido * sqrt(delta.x * delta.x + delta.y * delta.y);
+  v_lineal = sqrt(delta.x * delta.x + delta.y * delta.y);
 }
 
 // Establece la velocidad según el estado en que nos encontremos
