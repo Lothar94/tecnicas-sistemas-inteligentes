@@ -28,7 +28,7 @@ header-includes:
 ## Conseguir aumentar el campo de visión
   **El campo de visión del robot simulado es de 270º, ¿cómo hacer para que el escaneo laser sea mayor que el actualmente implementado?**
 
-  En el archivo _myPlannerLite.h_ hemos cambiado el valor de las constantes MIN_SCAN_ANGLE_RAD y MAX_SCAN_ANGLE_RAD a -135.0/180*M_PI y 135.0/180*M_PI respectivamente, para aumentar el ángulo de visión a un total de 270º.
+  En el archivo _myPlannerLite.h_ hemos cambiado el valor de las constantes `MIN_SCAN_ANGLE_RAD` y `MAX_SCAN_ANGLE_RAD` a `-135.0/180*M_PI` y `135.0/180*M_PI` respectivamente, para aumentar el ángulo de visión a un total de 270º.
 
 ## Conseguir que no se demore tanto tiempo en detenerse cuando esté lo suficientemente cerca del objetivo
 **¿Por qué tarda tanto en detenerse cuando está próximo al objetivo? ¿Cómo solucionarlo?**
@@ -44,17 +44,21 @@ header-includes:
 
   Al encontrarnos muy próximos a un obstáculo, el cálculo de la componente repulsiva dará como resultado una velocidad lineal muy alta, consecuencia de querer alejarnos cuanto antes de dicho obstáculo. Sin embargo, como tratamos la velocidad lineal y la velocidad angular por separado, al aumentar la velocidad lineal el robot no tiene tiempo de girar antes de chocarse con el obstáculo, dando la sensación de que el robot se lanza hacia él.
 
-  Como solución, hemos decidido hacer 0 la velocidad lineal del robot cuando se encuentra con un obstáculo y tiene que girar para evitarlo. De esta forma, permitimos al robot tomar la dirección deseada antes de moverse, evitando así lanzarnos hacia el obstáculo. Cuando esto ocurra, tendremos al robot en un estado de giro, que hará que al estar activado el cálculo de la velocidad lineal de 0 como resultado.
+  Como solución, hemos decidido hacer 0 la velocidad lineal del robot cuando se encuentra con un obstáculo y tiene que girar para evitarlo. De esta forma, permitimos al robot tomar la dirección deseada antes de volver a trasladarse, evitando así lanzarnos hacia el obstáculo. Cuando esto ocurra, tendremos al robot en un estado de giro, que al estar activado inhabilitará el paso de la velocidad lineal calculada, y en su lugar se pasará 0 como la componente `linear` del mensaje.
 
 ## Conseguir que, una vez que el robot se queda atrapado en una esquina (en un mínimo local), trate de salir de esta situación
 **¿Cómo conseguirlo sin utilizar memoria (es decir, información de un mapa)?**
 
-  Cuando detectamos que el robot está atascado, cancelamos el goal actual y enviamos un nuevo goal, para intentar escapar de este mínimo local. Calculamos este nuevo goal utilizando el costmap, intentando dirigirnos hacia la zona que tenga menos obstáculos. En caso de no conseguir alcanzar este segundo goal, cancelamos la acción del robot. Si llegamos hasta él, restauramos el goal inicial. 
+  En el archivo `myClientLite.cpp` se ha implementado una funcionalidad adicional en la función gestora de eventos de *feedback* que lleva un registro de la última posición y es capaz de analizar si el robot está quieto (o prácticamente quieto, mediante una tolerancia) y, tras transcurrir un tiempo razonable (que permite que el robot pivote sobre sí mismo si es necesario), asume que se ha encontrado un mínimo local.
+
+  Cuando detectamos que el robot está atascado, cancelamos el goal actual y enviamos un nuevo goal, para intentar escapar de este mínimo local. Calculamos este nuevo goal utilizando el costmap, intentando dirigirnos hacia la zona que tenga menos obstáculos. En caso de no conseguir alcanzar este segundo goal, cancelamos la acción del robot. Si llegamos hasta él, restauramos el goal inicial.
 
 ## Conseguir suprimir las oscilaciones del robot
 **¿Cuál es la causa de las oscilaciones? ¿Cómo eliminarlas en la mayor medida posible?**
 
-  Hemos detectado oscilaciones en el robot cuando está muy cerca del objetivo. Esto se debe a que, al intentar encarar el objetivo, el mínimo giro posible hace que nos pasemos y tengamos que girar hacia el otro lado, volviendo a darse la misma situación. Para evitarlo, hemos aumentado la tolerancia en el ángulo del robot, subiendo el valor de la componente EPSILON_ANGULAR.
+  Hemos detectado oscilaciones en el robot cuando está muy cerca del objetivo. Esto se debe a que, al intentar encarar el objetivo, el mínimo giro posible hace que nos pasemos y tengamos que girar hacia el otro lado, volviendo a darse la misma situación. Para evitarlo, hemos aumentado la tolerancia en el ángulo del robot, subiendo el valor de la componente `EPSILON_ANGULAR`.
+
+  Asimismo, se producen oscilaciones cuando el robot está bordeando una pared y el objetivo se encuentra al otro lado, ya que pretende girar hacia el objetivo pero para avanzar necesita hacerlo recto, ya que la componente repulsiva le impide atravesar la pared. Para estos casos, se ha añadido una constante `MIN_LIN_SPEED_FOR_TURNS` que representa la velocidad lineal mínima que ha de tener el robot para permitirse girar. El valor de la constante se ha escogido experimentalmente, y se ha establecido a 0,05.
 
 # Tareas para mejorar el comportamiento del robot mediante técnicas de navegación local con mapa.
 
@@ -82,4 +86,6 @@ header-includes:
 
 # Consideraciones adicionales.
 
-En la implementación del método "setTotalRepulsivo" en el archivo myPlannerLite.cpp se ha detectado un problema a la hora de acceder al vector que almacena los obstáculos que el robot está visualizando. Es posible que mientras se está calculando la componente repulsiva total, resultado de la suma de las componentes, se ejecute el callback "scanCallBack", que cambia el vector de obstáculos, pudiendo modificarlo y derivar en un acceso a posiciones del vector que no están ocupadas, generando un _core_ y abortando el programa. Para solucionar esto, en el callback usamos un método swap con un nuevo vector en el que vamos añadiendo los nuevos obstáculos.
+## Condiciones de carrera
+
+En la implementación del método `setTotalRepulsivo` en el archivo `myPlannerLite.cpp` se ha detectado un problema a la hora de acceder al vector que almacena los obstáculos que el robot está visualizando. Es posible que mientras se está calculando la componente repulsiva total, resultado de la suma de las componentes, se ejecute el callback `scanCallBack`, que cambia el vector de obstáculos, pudiendo modificarlo y derivar en un acceso a posiciones del vector que no están ocupadas, generando un _core_ y abortando el programa. Para solucionar esto, en el callback no generamos los nuevos elementos directamente sobre dicho vector, sino que rellenamos un vector nuevo con los obstáculos detectados y usamos el método `swap`, que los intercambia instantáneamente, impidiendo que se realicen accesos incorrectos.
