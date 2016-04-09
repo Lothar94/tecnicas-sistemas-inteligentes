@@ -23,7 +23,7 @@ define topurg ranger
 
 
 
-define pr2 walle
+define pr2 position
 (
 
   size [0.65 0.65 0.25]
