@@ -68,10 +68,27 @@ header-includes:
 
   Incluímos capturas de pantalla con el uso de distintos mapas sobre los que hemos experimentado.
 
+  ![\label{simplerooms} Mapa: Simple rooms](img/4-mapa1.png)
+
+  ![\label{autolab} Mapa: autolab](img/5-mapa2.png)
+
+  El comportamiento del robot en el mapa *Simple_rooms* se explica junto a la heurística. En el caso del mapa *autolab* el principal problema que se puede obtener es que un goal secudario no sea capaz de llegar a completarse con éxito puesto hay un pequeño pasillo a través del cual el robot no es capaz de pasar o pasa muy lentamente dependiendo de la asignación del goal secudario con la heurística como observamos en la figura \ref{atascoautolab}.
+
+  ![\label{atascoautolab} Atasco en goal secundario](img/9-atascado.png)
+
+  En esta prueba se estableció el goal en el punto (-1.9,11.1) de forma que el robot se acerca inicialmente hasta el punto encontrandose con una pared y posteriormente aplicando la heurística programada como se ve en \ref{idaautolab} y \ref{noalcanzadoautolab}. Despues de aplicarse el robot buscará una nueva ruta asignandose goal secundarios como en \ref{restablecerautolab}, una de ellas obliga a pasar por el pasillo anteriormente mencionado, como este nos es capaz dependiendo de donde coloque el punto el robot se atasca como ocurria en la figura \ref{atascoautolab}.
+
+  ![\label{idaautolab} Ida hacia el goal principal](img/6-ida.png)
+
+  ![\label{noalcanzadoautolab} Goal principal no alcanzable](img/7-noalcanzado.png)
+
+  ![\label{restablecerautolab} Aplicación de la heurística](img/8-restableciendo.png)
+
 
 ## Usar dos costmaps en el cliente
 **Uno local configurado para tener una ventana activa que se desplace con el robot y otro global para tener una información sobre el costmap del mapa completo.**
 
+![\label{costmaps} Visualización de los costmaps con Rviz](img/10-costmaps.png)
 
 ## Usar el costmap local para poder encontrar una trayectoria local segura desde la pose actual
 \label{heuristica}

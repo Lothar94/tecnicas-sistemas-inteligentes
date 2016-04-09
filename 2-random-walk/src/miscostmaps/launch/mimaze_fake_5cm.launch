@@ -17,8 +17,8 @@
     <rosparam file="$(find miscostmaps)/configuration/local_costmap_params.yaml"  command="load" />
     <rosparam file="$(find miscostmaps)/configuration/global_costmap_params.yaml" command="load" />
   </node>
-  <param name="goal_x" value="-6.0" />
-  <param name="goal_y" value="12.0" />
+  <param name="goal_x" value="-1.9" />
+  <param name="goal_y" value="11.1" />
   <param name="goal_theta" value="1" />
 
 </launch>
