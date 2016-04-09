@@ -161,29 +161,31 @@ double normalize(double angle){
 //Calcula la velocidad angular
 void LocalPlanner::setv_Angular(){
   double angulo = atan2(delta.y, delta.x);
-  double diferencia_normalizada = normalize(angulo-yaw);
+
+  double diferencia_normalizada = normalize(angulo - yaw);
   int signo = 2 * (diferencia_normalizada >= 0) - 1;
   double abs_diferencia = signo * diferencia_normalizada;
 
-  if (abs_diferencia > V_ANGULAR_CTE) {
+  // resetear el estado
+  //state = running;
+
+  if (v_lineal < MIN_LIN_SPEED_FOR_TURNS) {
+    v_angular = 0;
+  } else if (abs_diferencia > V_ANGULAR_CTE) {
     v_angular = signo * V_ANGULAR_CTE;
 
     // Notificar que necesitamos girar
     state = turning;
   } else {
     v_angular = (abs_diferencia > EPSILON_ANGULAR) * diferencia_normalizada;
-
-    // resetear el estado si es necesario
-    if (state == turning)
-      state = running;
   }
 }
 
 // Calcula la velocidad lineal.
 // Usar después de calcular la velocidad angular.
 void LocalPlanner::setv_Lineal(){
-  // La velocidad es cero si estamos girando mucho
-  v_lineal = (state != turning) * sqrt(delta.x * delta.x + delta.y * delta.y);
+  int sentido = 2 * (state != backwards) - 1;
+  v_lineal = sentido * sqrt(delta.x * delta.x + delta.y * delta.y);
 }
 
 // Establece la velocidad según el estado en que nos encontremos
@@ -199,7 +201,8 @@ PlannerState LocalPlanner::setSpeed() {
   } else {
     //Rellenar y enviar Twist.
     geometry_msgs::Twist mensajeTwist;
-    mensajeTwist.linear.x = v_lineal;
+    // La velocidad es cero si estamos girando mucho
+    mensajeTwist.linear.x = (state != turning) * v_lineal;
     mensajeTwist.angular.z = v_angular;
     commandPub.publish(mensajeTwist);
   }
