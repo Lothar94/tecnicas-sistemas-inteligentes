@@ -25,7 +25,7 @@ define topurg ranger
 
 define pr2 walle
 (
-   
+
   size [0.65 0.65 0.25]
   origin [-0.05 0 0 0]
   gui_nose 1
@@ -57,24 +57,24 @@ interval_sim 100  # simulation timestep in milliseconds
 
 
 window
-( 
-  size [ 745.000 448.000 ] 
+(
+  size [ 745.000 448.000 ]
 
   rotate [ 0.000 -1.560 ]
-  scale 18.806 
+  scale 18.806
 )
 
 # load an environment bitmap
 floorplan
-( 
+(
   name "willow"
   bitmap "../maps/autolab.png"
-  size [20.25 17.25 1.0]
+  size [50.25 50.25 1.0]
   pose [ -23.625 29.125 0 90.000 ]
 )
 
 # throw in a robot
-pr2( pose [ -28.610 13.562 0 99.786 ] name "pr2" color "blue")
+pr2( pose [ -24.410 21.562 0 99.786 ] name "pr2" color "blue")
 block( pose [ -25.062 12.909 0 180.000 ] color "red")
 block( pose [ -25.062 12.909 0 180.000 ] color "red")
 block( pose [ -25.062 12.909 0 180.000 ] color "red")

@@ -2,8 +2,8 @@
   <master auto="start"/>
   <param name="/use_sim_time" value="true"/>
 
-  <node name="map_server" pkg="map_server" type="map_server" args="$(find miscostmaps)/maps/simple_rooms.yaml" respawn="false"/>
- <node pkg="stage_ros" type="stageros" name="stageros" args="$(find mistage1516)/configuration/mundos/mi-simplerooms.world" respawn="false">
+  <node name="map_server" pkg="map_server" type="map_server" args="$(find mistage1516)/configuration/maps/autolab.png 0.1" respawn="false"/>
+ <node pkg="stage_ros" type="stageros" name="stageros" args="$(find mistage1516)/configuration/mundos/misimple.world" respawn="false">
              <param name="base_watchdog_timeout" value="0.2"/>
        </node>
 
@@ -17,8 +17,8 @@
     <rosparam file="$(find miscostmaps)/configuration/local_costmap_params.yaml"  command="load" />
     <rosparam file="$(find miscostmaps)/configuration/global_costmap_params.yaml" command="load" />
   </node>
-  <param name="goal_x" value="0.0" />
-  <param name="goal_y" value="8.0" />
+  <param name="goal_x" value="-21.0" />
+  <param name="goal_y" value="31.0" />
   <param name="goal_theta" value="1" />
 
 </launch>
