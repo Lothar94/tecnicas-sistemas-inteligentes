@@ -75,7 +75,24 @@ header-includes:
 
 ## Usar el costmap local para poder encontrar una trayectoria local segura desde la pose actual
 \label{heuristica}
-**y que finalice en un punto (en el que no haya colisión) de la frontera del costmap lo más próximo posible al objetivo. Esto se llevará a cabo mediante un proceso de búsqueda heurística teniendo en cuenta las siguientes fuentes de información: la distancia al objetivo, costes de las celdas del costmap local local y muestras del escaneo láser.**
+
+Se ha desarrollado una heurística sencilla orientada al descubrimiento de trayectorias alternativas hacia el objetivo. La heurística permite que el robot avance en una dirección que esté libre hasta alcanzar un objetivo secundario, y tras esto se puede reevaluar el objetivo secundario o restablecer el primario.
+
+Cuando se realiza una llamada a la heurística, esta evalúa los vecinos libres alrededor de la posición del robot. Cada casilla vecina libre se utiliza como una posible dirección a tomar. Cuando hay más de una, utiliza los mapas de coste para calcular la dirección en la que se pueda alcanzar la distancia más lejana a la actual. Además, se cuenta con un parámetro de ajuste que indica a qué altura del recorrido debería el robot pararse y reevaluar el objetivo.
+
+En la práctica, se consigue que el robot se aleje de la zona del mínimo local en línea recta (horizontal, vertical o diagonal) pero, puesto que el número de objetivos secundarios consecutivos y el parámetro de ajuste van cambiando, la heurística es potente y es capaz de descubrir "salidas" de una zona difícil.
+
+A continuación ilustramos la heurística mediante un ejemplo. Se ha utilizado el mapa *simple_rooms* ubicando el objetivo en el interior de la segunda habitación superior y colocando al robot inicialmente en la tercera habitación. De esta forma, encuentra muy rápidamente un mínimo local al acercarse a la pared que separa ambas habitaciones, como observamos en la figura \ref{cancelando}. Se llama entonces a la heurística que calcula un objetivo lejano en línea recta. Tras alcanzarlo, se restablecerá el objetivo inicial, y si de nuevo nos encontramos con un mínimo local, se calcularán entonces dos objetivos secundarios con un recorrido menor. Iterando este proceso, el robot llegará a salir de la habitación, como se muestra en la figura \ref{saliendo}, y tratará de explorar otras zonas del mapa.
+
+Si se restablece el objetivo inicial en otro punto, el robot podrá ser capaz de utilizar una nueva trayectoria gracias a los campos de potencial, que le permita llegar a su objetivo primario, como se observa en las figuras \ref{restableciendo} y \ref{alcanzado}.
+
+![\label{cancelando}Cancelación de objetivo inicial y cálculo de un objetivo secundario](img/0-cancelando.png)
+
+![\label{saliendo}El robot sale de la habitación gracias a la heurística](img/1-saliendo.png)
+
+![\label{restableciendo}Se restablece el objetivo inicial tras varios secundarios](img/2-restableciendo.png)
+
+![\label{alcanzado}Se alcanza el objetivo inicial](img/3-alcanzado.png)
 
 ## Mejorar el comportamiento del cliente en los siguientes aspectos:
   - Detectar que el robot está "atascado" (demasiado tiempo en una región sin avanzar al objetivo), usando información de "feedback".
