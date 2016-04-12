@@ -48,16 +48,16 @@ PLUGINLIB_EXPORT_CLASS(myastar_planner::MyastarPlanner, nav_core::BaseGlobalPlan
 namespace myastar_planner {
 
   //devuelve un puntero a un nodo en una lista de nodos (nodo = coupleOfCells) a partir del índice del nodo
-  list<coupleOfCells>::iterator getPositionInList(list<coupleOfCells> & list1, unsigned int cellID);
+  std::list<coupleOfCells>::iterator getPositionInList(std::list<coupleOfCells> & list1, unsigned int cellID);
 
   //comprueba si un índice de nodo existe en una lista de nodos.
-  bool isContains(list<coupleOfCells> & list1, int cellID);
+  bool isContains(std::list<coupleOfCells> & list1, int cellID);
 
   MyastarPlanner::MyastarPlanner()
-  : costmap_ros_(NULL), initialized_(false){}
+  : costmap_ros_(NULL), initialized_(false) {}
 
   MyastarPlanner::MyastarPlanner(std::string name, costmap_2d::Costmap2DROS* costmap_ros)
-  : costmap_ros_(NULL), initialized_(false){
+  : MyastarPlanner() {
     initialize(name, costmap_ros);
   }
 
@@ -184,7 +184,7 @@ namespace myastar_planner {
         //vamos a insertar ese nodo  en cerrados
 
         //obtenemos un iterador a ese nodo en la lista de abiertos
-        list<coupleOfCells>::iterator it=getPositionInList(openList,currentIndex);
+        std::list<coupleOfCells>::iterator it=getPositionInList(openList,currentIndex);
 
 
         //copiamos el contenido de ese nodo a una variable nodo auxiliar
@@ -231,7 +231,7 @@ namespace myastar_planner {
           while (currentCouple.index != currentParent){ //e.d. mientras no lleguemos al nodo start
             //encontramos la posición de currentParent en cerrados
 
-             list<coupleOfCells>::iterator it=getPositionInList(closedList,currentParent);
+             std::list<coupleOfCells>::iterator it=getPositionInList(closedList,currentParent);
             //hacemos esa posición que sea el currentCouple
             currentCouple.index=currentParent;
             currentCouple.parent=(*it).parent;
@@ -279,7 +279,7 @@ namespace myastar_planner {
         openList.pop_front();
 
         //Buscamos en el costmap las celdas adyacentes a la actual
-        vector <unsigned int> neighborCells=findFreeNeighborCell(currentIndex);
+        std::vector<unsigned int> neighborCells=findFreeNeighborCell(currentIndex);
 
         //Ignoramos las celdas que ya existen en CERRADOS
 
@@ -332,8 +332,8 @@ namespace myastar_planner {
   //Output: index of the cell in the list
   //Description: it is used to search the index of a cell in a list
   /*********************************************************************************/
-  list<coupleOfCells>::iterator getPositionInList(list<coupleOfCells> & list1, unsigned int cellID){
-     for (list<coupleOfCells>::iterator it = list1.begin(); it != list1.end(); it++){
+  std::list<coupleOfCells>::iterator getPositionInList(std::list<coupleOfCells> & list1, unsigned int cellID){
+     for (std::list<coupleOfCells>::iterator it = list1.begin(); it != list1.end(); it++){
        if (it->index == cellID)
            return it;
      }
@@ -349,10 +349,10 @@ namespace myastar_planner {
     *             costmap[x,y] = FREE_SPACE, donde (x,y) son las coordenadas en el costmap del índice i
     *
   *********************************************************************************/
-  vector <unsigned int> MyastarPlanner::findFreeNeighborCell (unsigned int CellID){
+  std::vector<unsigned int> MyastarPlanner::findFreeNeighborCell (unsigned int CellID){
     unsigned int mx, my;
     costmap_->indexToCells(CellID,mx,my);
-    vector <unsigned int>  freeNeighborCells;
+    std::vector<unsigned int>  freeNeighborCells;
 
     for (int x=-1;x<=1;x++)
       for (int y=-1; y<=1;y++){
@@ -374,8 +374,8 @@ namespace myastar_planner {
   //Output: true or false
   //Description: it is used to check if a cell exists in the open list or in the closed list
   /*********************************************************************************/
-   bool isContains(list<coupleOfCells> & list1, int cellID){
-     for (list<coupleOfCells>::iterator it = list1.begin(); it != list1.end(); it++){
+   bool isContains(std::list<coupleOfCells> & list1, int cellID){
+     for (std::list<coupleOfCells>::iterator it = list1.begin(); it != list1.end(); it++){
        if (it->index == cellID)
            return true;
       }
@@ -393,8 +393,8 @@ namespace myastar_planner {
   //Output:
   //Description: it is used to add the neighbor Cells to the open list
   /*********************************************************************************/
-  void MyastarPlanner::addNeighborCellsToOpenList(list<coupleOfCells> & OPL, vector <unsigned int> neighborCells, unsigned int parent, float gCostParent, unsigned int goalCell){ //,float tBreak)
-    vector <coupleOfCells> neighborsCellsOrdered;
+  void MyastarPlanner::addNeighborCellsToOpenList(std::list<coupleOfCells> & OPL, std::vector<unsigned int> neighborCells, unsigned int parent, float gCostParent, unsigned int goalCell){ //,float tBreak)
+    std::vector<coupleOfCells> neighborsCellsOrdered;
     for(uint i=0; i< neighborCells.size(); i++){
       coupleOfCells CP;
       CP.index=neighborCells[i]; //insert the neighbor cell
