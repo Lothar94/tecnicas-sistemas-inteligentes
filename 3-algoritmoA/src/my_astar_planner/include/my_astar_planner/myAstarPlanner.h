@@ -68,7 +68,6 @@ namespace myastar_planner{
   * @brief Provides an a-star simple global planner that will compute a valid goal point for the local planner by using classical astar implementation.
   */
 
-  using namespace std;
   /**
   * @struct coupleOfCells
   * @brief A struct that represents a node, that is, a couple of current and parent cells
@@ -123,8 +122,9 @@ namespace myastar_planner{
     ros::Publisher plan_pub_;
 
     //necesarios para manejar las listas de abiertos y cerrados de astar.
-    list<coupleOfCells> openList; //!< the open list: it contains all the expanded cells (current cells)
-    list<coupleOfCells> closedList; //!< the closed list: contains the explored cells
+    std::list<coupleOfCells> openList; //!< the open list: it contains all the expanded cells (current cells)
+    std::priority_queue<coupleOfCells> openQueue;
+    std::list<coupleOfCells> closedList; //!< the closed list: contains the explored cells
 
     /**
     * @brief  Checks the legality of the robot footprint at a position and orientation using the world model
