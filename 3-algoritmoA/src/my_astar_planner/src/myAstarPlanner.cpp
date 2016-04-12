@@ -165,7 +165,7 @@ namespace myastar_planner {
     cpstart.hCost = MyastarPlanner::calculateHCost(cpstart.index,cpgoal.index);
 
     //insertamos el nodo inicial en abiertos
-    MyastarPlanner::openList.push_back(cpstart);
+    openList.push_back(cpstart);
 
 
     ROS_INFO("Inserto en Abiertos: %d", cpstart.index );
@@ -174,7 +174,7 @@ namespace myastar_planner {
     unsigned int explorados = 0;
     unsigned int currentIndex = cpstart.index;
 
-    while (!MyastarPlanner::openList.empty()) //while the open list is not empty continuie the search
+    while (!openList.empty()) //while the open list is not empty continuie the search
     {
 
         //escoger el nodo (coupleOfCells) de abiertos que tiene el valor más pequeño de f.
@@ -321,7 +321,8 @@ namespace myastar_planner {
   }
 
 
-  //comparamos F para dos nodos.
+  // Comparamos F para dos nodos.
+  // Función de comparación para la cola con prioridad.
   bool MyastarPlanner::compareFCost(coupleOfCells const &c1, coupleOfCells const &c2){
      return c1.fCost < c2.fCost;
   }
@@ -331,6 +332,7 @@ namespace myastar_planner {
   //Inputs:the cellID, the list
   //Output: index of the cell in the list
   //Description: it is used to search the index of a cell in a list
+  // Modificar.
   /*********************************************************************************/
   list<coupleOfCells>::iterator getPositionInList(list<coupleOfCells> & list1, unsigned int cellID){
      for (list<coupleOfCells>::iterator it = list1.begin(); it != list1.end(); it++){
