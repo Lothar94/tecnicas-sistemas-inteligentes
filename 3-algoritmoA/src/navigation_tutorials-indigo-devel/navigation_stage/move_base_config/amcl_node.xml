@@ -5,8 +5,9 @@
 <node pkg="amcl" type="amcl" name="amcl" respawn="true">
   <remap from="scan" to="base_scan" />
 
-  <param name="initial_pose_x" value="13.279"/>
-  <param name="initial_pose_y" value="28.4"/>
+  <!-- Se aplica rotación de 3/4 τ (270°) -->
+  <param name="initial_pose_x" value="28.4"/>
+  <param name="initial_pose_y" value="-13.279"/>
   <param name="initial_pose_a" value="0.175"/>
 
   <!-- Publish scans from best pose at a max of 10 Hz -->
