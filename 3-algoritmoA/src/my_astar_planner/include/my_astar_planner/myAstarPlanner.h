@@ -56,8 +56,10 @@
 
 //includes específicos para hacer referencia a la implementación del algoritmo astar.
 
-#include<vector>
+#include <vector>
 #include <list>
+#include <queue>  // Priority_Queue
+#include <functional>
 
 
 namespace myastar_planner{
@@ -140,10 +142,10 @@ namespace myastar_planner{
     */
     double calculateHCost(unsigned int start, unsigned int goal);
 
-    //defvuelve true si f(c1) < f(c2)
+    // Devuelve true si f(c1) < f(c2)
     static bool compareFCost(coupleOfCells const &c1, coupleOfCells const &c2);
 
-    //devuelve celdas adyacentes a CellID que estén libres
+    // Devuelve celdas adyacentes a CellID que estén libres
     vector <unsigned int> findFreeNeighborCell (unsigned int CellID);
 
     /*******************************************************************************/
