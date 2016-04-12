@@ -72,12 +72,16 @@ namespace myastar_planner{
   * @struct coupleOfCells
   * @brief A struct that represents a node, that is, a couple of current and parent cells
   */
-  struct coupleOfCells {
+  class coupleOfCells {
+  public:
     unsigned int index;
     unsigned int parent;
     double gCost;
     double hCost;
     double fCost;
+    bool operator>(const coupleOfCells& other) const {
+      return fCost > other.fCost;
+    }
   };
 
 
@@ -123,7 +127,7 @@ namespace myastar_planner{
 
     //necesarios para manejar las listas de abiertos y cerrados de astar.
     std::list<coupleOfCells> openList; //!< the open list: it contains all the expanded cells (current cells)
-    std::priority_queue<coupleOfCells> openQueue;
+    std::priority_queue<coupleOfCells, std::vector<coupleOfCells>, std::greater<coupleOfCells> > openQueue;
     std::list<coupleOfCells> closedList; //!< the closed list: contains the explored cells
 
     /**
@@ -146,7 +150,7 @@ namespace myastar_planner{
     static bool compareFCost(coupleOfCells const &c1, coupleOfCells const &c2);
 
     // Devuelve celdas adyacentes a CellID que estén libres
-    vector <unsigned int> findFreeNeighborCell (unsigned int CellID);
+    std::vector <unsigned int> findFreeNeighborCell (unsigned int CellID);
 
     /*******************************************************************************/
     //Function Name: addNeighborCellsToOpenList
@@ -154,7 +158,7 @@ namespace myastar_planner{
     //Output:
     //Description: it is used to add the neighbor Cells to the open list
     /*********************************************************************************/
-    void addNeighborCellsToOpenList(list<coupleOfCells> & OPL, vector <unsigned int> neighborCells, unsigned int parent, float gCostParent, unsigned int goalCell);
+    void addNeighborCellsToOpenList(std::list<coupleOfCells> & OPL, std::vector <unsigned int> neighborCells, unsigned int parent, float gCostParent, unsigned int goalCell);
 
     double getMoveCost(unsigned int here, unsigned int there);
 

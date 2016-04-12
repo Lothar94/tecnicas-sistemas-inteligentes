@@ -18,6 +18,8 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   tf
   costmap_2d
+  nav_core
+  base_local_planner
 )
 
 ## System dependencies are found with CMake's conventions
