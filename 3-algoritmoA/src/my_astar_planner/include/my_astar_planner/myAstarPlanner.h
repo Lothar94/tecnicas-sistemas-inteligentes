@@ -158,7 +158,8 @@ namespace myastar_planner{
     //Output:
     //Description: it is used to add the neighbor Cells to the open list
     /*********************************************************************************/
-    void addNeighborCellsToOpenList(std::list<coupleOfCells> & OPL, std::vector <unsigned int> neighborCells, unsigned int parent, float gCostParent, unsigned int goalCell);
+    template<class T, class S, class C>
+    void add_neighbors_to_queue(std::priority_queue<T, S, C>& abiertos, std::vector<unsigned int>::iterator first, std::vector<unsigned int>::iterator last, unsigned int parent, double parent_cost, unsigned int goal);
 
     double getMoveCost(unsigned int here, unsigned int there);
 
