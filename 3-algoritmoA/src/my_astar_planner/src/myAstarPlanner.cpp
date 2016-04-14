@@ -67,11 +67,12 @@ namespace myastar_planner {
   bool isContains(std::list<coupleOfCells> & list1, int cellID);
 
   MyastarPlanner::MyastarPlanner()
-  : costmap_ros_(NULL), initialized_(false) {}
+  : costmap_ros_(NULL), initialized_(false) { ROS_INFO("Creating an uninitialized planner?"); }
 
   MyastarPlanner::MyastarPlanner(std::string name, costmap_2d::Costmap2DROS* costmap_ros)
   : MyastarPlanner() {
     initialize(name, costmap_ros);
+    ROS_INFO("Created and initialized planner");
   }
 
   //inicializador del global_planner, mejor no tocar nada.
@@ -115,6 +116,7 @@ namespace myastar_planner {
   //función llamada por move_base para obtener el plan.
   bool MyastarPlanner::makePlan(const geometry_msgs::PoseStamped& start,
     const geometry_msgs::PoseStamped& goal, std::vector<geometry_msgs::PoseStamped>& plan){
+    const unsigned int MAX_EXPLORADOS = 2000;
 
     //***********************************************************
     // Inicio de gestion de ROS, mejor no tocar nada en esta parte
@@ -186,7 +188,7 @@ namespace myastar_planner {
     unsigned int explorados = 0,
       currentIndex = cpstart.index;
 
-    while (!(currentIndex == cpgoal.index || explorados >= 2000 || openQueue.empty())) {
+    while (!(currentIndex == cpgoal.index || explorados >= MAX_EXPLORADOS || openQueue.empty())) {
       // escoger el nodo (coupleOfCells) de abiertos que tiene el valor más pequeño de f.
       coupleOfCells cOfCells = openQueue.top();
       currentIndex = cOfCells.index;
@@ -237,9 +239,7 @@ namespace myastar_planner {
       }
     }
 
-    if (openQueue.empty()) {  // if the openList is empty: then failure to find a path
-      ROS_INFO("Failure to find a path !");
-    } else {
+    if (currentIndex == cpgoal.index) {
       //el plan lo construimos partiendo del goal, del parent del goal y saltando en cerrados "de parent en parent"
       //y vamos insertando al final los waypoints (los nodos de cerrados)
 
@@ -311,9 +311,11 @@ namespace myastar_planner {
 
       //lo publica en el topic "planTotal"
       publishPlan(plan);
+      return true;
+    } else {
+      ROS_INFO("Failure to find a path !");
+      return false;
     }
-
-    return openQueue.empty();
   };
 
 
@@ -429,10 +431,10 @@ namespace myastar_planner {
   void MyastarPlanner::publishPlan(const std::vector<geometry_msgs::PoseStamped>& path){
     ROS_INFO("Longitud del path: %d", path.size());
 
-    /*if (!initialized_) {
+    if (!initialized_) {
       ROS_ERROR("This planner has not been initialized yet, but it is being used, please call initialize() before use");
       return;
-    }*/
+    }
 
     //create a message for the plan
     nav_msgs::Path gui_path;
@@ -449,7 +451,7 @@ namespace myastar_planner {
     }
 
     plan_pub_.publish(gui_path);
-    ROS_INFO("Se publicó el camino encontrado.");
+    ROS_INFO("Se ha publicado el camino encontrado.");
   }
 
 }
