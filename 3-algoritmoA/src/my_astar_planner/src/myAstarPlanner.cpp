@@ -44,6 +44,17 @@
 #include <sstream>
 #include <string>
 
+// Hack para acceder al container de la priority_queue
+template <class T, class S, class C>
+S& Container(std::priority_queue<T, S, C>& q) {
+  struct HackedQueue : private std::priority_queue<T, S, C> {
+    static S& Container(std::priority_queue<T, S, C>& q) {
+      return q.*&HackedQueue::c;
+    }
+  };
+  return HackedQueue::Container(q);
+}
+
 //register this planner as a BaseGlobalPlanner plugin
 PLUGINLIB_EXPORT_CLASS(myastar_planner::MyastarPlanner, nav_core::BaseGlobalPlanner)
 
@@ -291,17 +302,28 @@ namespace myastar_planner {
           });
         });
 
+        std::vector<coupleOfCells> &celdas_abiertos = Container(openQueue);
 
         //Determinamos las celdas que ya están en ABIERTOS y las que no están en ABIERTOS
+        std::vector<unsigned int>::iterator fuera_begin = std::partition(neighborCells.begin(), neighborCells.end(), [&](unsigned int index) -> bool {
+          return std::any_of(celdas_abiertos.begin(), celdas_abiertos.end(), [&index](coupleOfCells& cell) -> bool {
+            return cell.index == index;
+          });
+        });
 
+        //Añadimos a ABIERTOS las celdas que todavía no están en ABIERTO, marcando el nodo actual como su padre
+        add_neighbors_to_queue(openQueue, fuera_begin, neighborCells.end(), currentIndex, cpstart.gCost, cpgoal.index);
+        explorados++;
 
-       //Añadimos a ABIERTOS las celdas que todavía no están en ABIERTO, marcando el nodo actual como su padre
-       //ver la función addNeighborCellsToOpenList(openList, neighborsNotInOpenList, currentIndex, coste_del_nodo_actual, indice_del_nodo_goal);
-       addNeighborCellsToOpenList(openList, neighborCells, currentIndex, cpstart.gCost, cpgoal.index);
-       explorados++;
-
-       //Para los nodos que ya están en abiertos, comprobar en cerrados su coste y actualizarlo si fuera necesario
-
+        //Para los nodos que ya están en abiertos, comprobar en cerrados su coste y actualizarlo si fuera necesario
+        std::for_each(celdas_abiertos.begin(), celdas_abiertos.end(), [&](coupleOfCells& cell) {
+          std::list<coupleOfCells>::iterator cerrada = std::find_if(closedList.begin(), closedList.end(), [&cell](coupleOfCells& closed_cell) {
+            return closed_cell.index == cell.index;
+          });
+          (*cerrada).gCost = cell.gCost;
+          (*cerrada).hCost = cell.hCost;
+          (*cerrada).fCost = cell.fCost;
+        });
     }
 
     if(openList.empty()){  // if the openList is empty: then failure to find a path
@@ -397,28 +419,27 @@ namespace myastar_planner {
   }
 
   /*******************************************************************************/
-  //Function Name: addNeighborCellsToOpenList
-  //Inputs: the open list, the neighbors Cells and the parent Cell
+  //Function Name: add_neighbors_to_queue
+  //Inputs: the open queue, the neighbor Cells and the parent Cell
   //Output:
-  //Description: it is used to add the neighbor Cells to the open list
+  //Description: it is used to add the neighbor Cells to the open queue
   /*********************************************************************************/
-  void MyastarPlanner::addNeighborCellsToOpenList(std::list<coupleOfCells> & OPL, std::vector<unsigned int> neighborCells, unsigned int parent, float gCostParent, unsigned int goalCell){ //,float tBreak)
-    std::vector<coupleOfCells> neighborsCellsOrdered;
-    for(uint i=0; i< neighborCells.size(); i++){
-      coupleOfCells CP;
-      CP.index=neighborCells[i]; //insert the neighbor cell
-      CP.parent=parent; //insert the parent cell
+  template<class T, class S, class C>
+  void MyastarPlanner::add_neighbors_to_queue(std::priority_queue<T, S, C>& abiertos, std::vector<unsigned int>::iterator first, std::vector<unsigned int>::iterator last, unsigned int parent, double parent_cost, unsigned int goal) {
+    std::for_each(first, last, [&](unsigned int neighbor_cell) {
+      T neighbor;
+
+      neighbor.index = neighbor_cell;
+      neighbor.parent = parent;
       //calculate the gCost
-      CP.gCost=gCostParent+getMoveCost(parent,neighborCells[i]);
-
+      neighbor.gCost = parent_cost + getMoveCost(parent, neighbor_cell);
       //calculate the hCost: Euclidian distance from the neighbor cell to the goalCell
-      CP.hCost=calculateHCost(neighborCells[i],goalCell);
+      neighbor.hCost = calculateHCost(neighbor_cell, goal);
       //calculate fcost
+      neighbor.fCost = neighbor.gCost + neighbor.hCost;
 
-      CP.fCost=CP.gCost+CP.hCost;
-     // neighborsCellsOrdered.push_back(CP);
-      OPL.push_back(CP);
-    }
+      abiertos.push(neighbor);
+    });
   }
 
   //publicamos el plan para poder visualizarlo en rviz
