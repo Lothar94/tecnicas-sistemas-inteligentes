@@ -114,13 +114,13 @@ namespace myastar_planner {
 
   //función llamada por move_base para obtener el plan.
   bool MyastarPlanner::makePlan(const geometry_msgs::PoseStamped& start,
-      const geometry_msgs::PoseStamped& goal, std::vector<geometry_msgs::PoseStamped>& plan){
+    const geometry_msgs::PoseStamped& goal, std::vector<geometry_msgs::PoseStamped>& plan){
 
     //***********************************************************
     // Inicio de gestion de ROS, mejor no tocar nada en esta parte
     //***********************************************************
     if(!initialized_){
-      ROS_ERROR("The astar planner has not been initialized, please call initialize() to use the planner");
+      ROS_ERROR("makePlan: The astar planner has not been initialized, please call initialize() to use the planner");
       return false;
     }
 
@@ -172,123 +172,33 @@ namespace myastar_planner {
     double start_y = start.pose.position.y;
     unsigned int mstart_x, mstart_y;
     costmap_->worldToMap(start_x,start_y, mstart_x, mstart_y);
-    cpstart.index = MyastarPlanner::costmap_->getIndex(mstart_x, mstart_y);
-    cpstart.parent =cpstart.index;
+    cpstart.index = costmap_->getIndex(mstart_x, mstart_y);
+    cpstart.parent = cpstart.index;
     cpstart.gCost = 0;
-    cpstart.hCost = MyastarPlanner::calculateHCost(cpstart.index,cpgoal.index);
+    cpstart.hCost = calculateHCost(cpstart.index,cpgoal.index);
 
     //insertamos el nodo inicial en abiertos
     openQueue.push(cpstart);
 
-
     ROS_INFO("Inserto en Abiertos: %d", cpstart.index );
     ROS_INFO("Index del goal: %d", cpgoal.index );
 
-    unsigned int explorados = 0;
-    unsigned int currentIndex = cpstart.index;
+    unsigned int explorados = 0,
+      currentIndex = cpstart.index;
 
-    while (!openQueue.empty()) { //while the open list is not empty continuie the search
+    while (!(currentIndex == cpgoal.index || explorados >= 2000 || openQueue.empty())) {
+      // escoger el nodo (coupleOfCells) de abiertos que tiene el valor más pequeño de f.
+      coupleOfCells cOfCells = openQueue.top();
+      currentIndex = cOfCells.index;
 
-        // escoger el nodo (coupleOfCells) de abiertos que tiene el valor más pequeño de f.
-        coupleOfCells cOfCells = openQueue.top();
-        currentIndex = cOfCells.index;
+      // se inserta el nodo en cerrados (mediante constructor de copia)
+      closedList.push_back(coupleOfCells(cOfCells));
 
-        //vamos a insertar ese nodo  en cerrados
-        closedList.push_back(coupleOfCells(cOfCells));
-        /*
-        //obtenemos un iterador a ese nodo en la lista de abiertos
-        std::list<coupleOfCells>::iterator it = getPositionInList(openList,currentIndex);
+      //ROS_INFO("Inserto en CERRADOS: %d", (*it).index );
+      // ROS_INFO("G: %f, H: %f, F: %f", cOfCells.gCost, cOfCells.hCost, cOfCells.fCost);
+      // ROS_INFO("Index: %d Parent: %d", cOfCells.index, cOfCells.parent);
 
-
-        //copiamos el contenido de ese nodo a una variable nodo auxiliar
-        cpstart.index=currentIndex;
-        cpstart.parent=(*it).parent;
-        cpstart.gCost=(*it).gCost;
-        cpstart.hCost=(*it).hCost;
-        cpstart.fCost=(*it).fCost;
-
-
-        //y esa variable la insertamos en cerrados
-        MyastarPlanner::closedList.push_back(cpstart);*/
-        //ROS_INFO("Inserto en CERRADOS: %d", (*it).index );
-        ROS_INFO("G: %f, H: %f, F: %f", cOfCells.gCost, cOfCells.hCost, cOfCells.fCost);
-        ROS_INFO("Index: %d Parent: %d", cOfCells.index, cOfCells.parent);
-
-        // Si el nodo recién insertado es el goal, ¡plan encontrado!
-        if (currentIndex==cpgoal.index  || explorados == 2000) {
-          //el plan lo construimos partiendo del goal, del parent del goal y saltando en cerrados "de parent en parent"
-          //y vamos insertando al final los waypoints (los nodos de cerrados)
-
-          ROS_INFO("PLAN ENCONTRADO !!!");
-
-          //convertimos goal a poseStamped nueva
-
-          geometry_msgs::PoseStamped pose;
-          pose.header.stamp =  ros::Time::now();
-          pose.header.frame_id = goal.header.frame_id;//debe tener el mismo frame que el goal pasado por parámetro
-          pose.pose.position.x = goal_x;
-          pose.pose.position.y = goal_y;
-          pose.pose.position.z = 0.0;
-          pose.pose.orientation.x = 0.0;
-          pose.pose.orientation.y = 0.0;
-          pose.pose.orientation.z = 0.0;
-          pose.pose.orientation.w = 1.0;
-
-          // Lo añadimos al plan
-          plan.push_back(pose);
-          ROS_INFO("Inserta en Plan: %f, %f", pose.pose.position.x, pose.pose.position.y);
-
-          coupleOfCells currentCouple = cOfCells;
-          unsigned int currentParent = cOfCells.parent;
-
-          while (currentCouple.index != currentParent){ //e.d. mientras no lleguemos al nodo start
-            //encontramos la posición de currentParent en cerrados
-
-            std::list<coupleOfCells>::iterator it = getPositionInList(closedList, currentParent);
-
-            //hacemos esa posición que sea el currentCouple
-            currentCouple.index = currentParent;
-            currentCouple.parent = (*it).parent;
-            currentCouple.gCost = (*it).gCost;
-            currentCouple.hCost = (*it).hCost;
-            currentCouple.fCost = (*it).fCost;
-
-            //creamos una PoseStamped con la información de currentCouple.index
-
-            //primero hay que convertir el currentCouple.index a world coordinates
-            unsigned int mpose_x, mpose_y;
-            double wpose_x, wpose_y;
-
-            costmap_->indexToCells(currentCouple.index, mpose_x, mpose_y);
-            costmap_->mapToWorld(mpose_x, mpose_y, wpose_x, wpose_y);
-
-            //después creamos la pose
-            geometry_msgs::PoseStamped pose;
-            pose.header.stamp =  ros::Time::now();
-            pose.header.frame_id = goal.header.frame_id;//debe tener el mismo frame que el de la entrada
-            pose.pose.position.x = wpose_x;
-            pose.pose.position.y = wpose_y;
-            pose.pose.position.z = 0.0;
-            pose.pose.orientation.x = 0.0;
-            pose.pose.orientation.y = 0.0;
-            pose.pose.orientation.z = 0.0;
-            pose.pose.orientation.w = 1.0;
-
-            //insertamos la pose en el plan
-            plan.push_back(pose);
-            ROS_INFO("Inserta en Plan: %f, %f", pose.pose.position.x, pose.pose.position.y);
-            //hacemos que currentParent sea el parent de currentCouple
-            currentParent = currentCouple.parent;
-          }
-
-          ROS_INFO("Sale del bucle de generación del plan.");
-          std::reverse(plan.begin(),plan.end());
-
-          //lo publica en el topic "planTotal"
-          publishPlan(plan);
-          return true;
-        }
-
+      if (currentIndex != cpgoal.index) {
         //Si no hemos encontrado plan aún eliminamos el nodo insertado de ABIERTOS.
         openQueue.pop();
 
@@ -324,13 +234,86 @@ namespace myastar_planner {
           (*cerrada).hCost = cell.hCost;
           (*cerrada).fCost = cell.fCost;
         });
+      }
     }
 
-    if(openList.empty()){  // if the openList is empty: then failure to find a path
+    if (openQueue.empty()) {  // if the openList is empty: then failure to find a path
       ROS_INFO("Failure to find a path !");
-      return false;
-     // exit(1);
+    } else {
+      //el plan lo construimos partiendo del goal, del parent del goal y saltando en cerrados "de parent en parent"
+      //y vamos insertando al final los waypoints (los nodos de cerrados)
+
+      ROS_INFO("PLAN ENCONTRADO !!!");
+
+      //convertimos goal a poseStamped nueva
+
+      geometry_msgs::PoseStamped pose;
+      pose.header.stamp =  ros::Time::now();
+      pose.header.frame_id = goal.header.frame_id;//debe tener el mismo frame que el goal pasado por parámetro
+      pose.pose.position.x = goal_x;
+      pose.pose.position.y = goal_y;
+      pose.pose.position.z = 0.0;
+      pose.pose.orientation.x = 0.0;
+      pose.pose.orientation.y = 0.0;
+      pose.pose.orientation.z = 0.0;
+      pose.pose.orientation.w = 1.0;
+
+      // Lo añadimos al plan
+      plan.push_back(pose);
+      ROS_INFO("Inserta en Plan: %f, %f", pose.pose.position.x, pose.pose.position.y);
+
+      std::list<coupleOfCells>::iterator goal_it = std::find_if(closedList.begin(), closedList.end(), [&](coupleOfCells cell) { return cell.index == cpgoal.index; });
+      coupleOfCells currentCouple = *goal_it;
+      unsigned int currentParent = currentCouple.parent;
+
+      while (currentCouple.index != currentParent) { //e.d. mientras no lleguemos al nodo start
+        //encontramos la posición de currentParent en cerrados
+
+        std::list<coupleOfCells>::iterator it = getPositionInList(closedList, currentParent);
+
+        //hacemos esa posición que sea el currentCouple
+        currentCouple.index = currentParent;
+        currentCouple.parent = (*it).parent;
+        currentCouple.gCost = (*it).gCost;
+        currentCouple.hCost = (*it).hCost;
+        currentCouple.fCost = (*it).fCost;
+
+        //creamos una PoseStamped con la información de currentCouple.index
+
+        //primero hay que convertir el currentCouple.index a world coordinates
+        unsigned int mpose_x, mpose_y;
+        double wpose_x, wpose_y;
+
+        costmap_->indexToCells(currentCouple.index, mpose_x, mpose_y);
+        costmap_->mapToWorld(mpose_x, mpose_y, wpose_x, wpose_y);
+
+        //después creamos la pose
+        geometry_msgs::PoseStamped pose;
+        pose.header.stamp =  ros::Time::now();
+        pose.header.frame_id = goal.header.frame_id;//debe tener el mismo frame que el de la entrada
+        pose.pose.position.x = wpose_x;
+        pose.pose.position.y = wpose_y;
+        pose.pose.position.z = 0.0;
+        pose.pose.orientation.x = 0.0;
+        pose.pose.orientation.y = 0.0;
+        pose.pose.orientation.z = 0.0;
+        pose.pose.orientation.w = 1.0;
+
+        //insertamos la pose en el plan
+        plan.push_back(pose);
+        ROS_INFO("Inserta en Plan: %f, %f", pose.pose.position.x, pose.pose.position.y);
+        //hacemos que currentParent sea el parent de currentCouple
+        currentParent = currentCouple.parent;
+      }
+
+      std::reverse(plan.begin(), plan.end());
+      ROS_INFO("Vamos a publicar el plan.");
+
+      //lo publica en el topic "planTotal"
+      publishPlan(plan);
     }
+
+    return openQueue.empty();
   };
 
 
@@ -444,27 +427,29 @@ namespace myastar_planner {
 
   //publicamos el plan para poder visualizarlo en rviz
   void MyastarPlanner::publishPlan(const std::vector<geometry_msgs::PoseStamped>& path){
-      if (!initialized_){
-          ROS_ERROR(
-                  "This planner has not been initialized yet, but it is being used, please call initialize() before use");
-          return;
-      }
+    ROS_INFO("Longitud del path: %d", path.size());
 
-      //create a message for the plan
-      nav_msgs::Path gui_path;
-      gui_path.poses.resize(path.size());
+    /*if (!initialized_) {
+      ROS_ERROR("This planner has not been initialized yet, but it is being used, please call initialize() before use");
+      return;
+    }*/
 
-      if (!path.empty()){
-          gui_path.header.frame_id = path[0].header.frame_id;
-          gui_path.header.stamp = path[0].header.stamp;
-      }
+    //create a message for the plan
+    nav_msgs::Path gui_path;
+    gui_path.poses.resize(path.size());
 
-      // Extract the plan in world co-ordinates, we assume the path is all in the same frame
-      for (unsigned int i = 0; i < path.size(); i++){
-          gui_path.poses[i] = path[i];
-      }
+    if (!path.empty()){
+      gui_path.header.frame_id = path[0].header.frame_id;
+      gui_path.header.stamp = path[0].header.stamp;
+    }
 
-      plan_pub_.publish(gui_path);
+    // Extract the plan in world co-ordinates, we assume the path is all in the same frame
+    for (unsigned int i = 0; i < path.size(); i++){
+      gui_path.poses[i] = path[i];
+    }
+
+    plan_pub_.publish(gui_path);
+    ROS_INFO("Se publicó el camino encontrado.");
   }
 
 }
