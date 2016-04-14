@@ -176,7 +176,7 @@ namespace myastar_planner {
     unsigned int explorados = 0;
     unsigned int currentIndex = cpstart.index;
 
-    while (!openQueue.empty()) { //while the open list is not empty continuie the search
+    while (!openQueue.empty()) { //while the open list is not empty continue the search
 
         // escoger el nodo (coupleOfCells) de abiertos que tiene el valor más pequeño de f.
         coupleOfCells cOfCells = openQueue.top();
