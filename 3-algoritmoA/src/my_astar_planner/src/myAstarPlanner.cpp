@@ -38,6 +38,8 @@
 #include "../include/my_astar_planner/myAstarPlanner.h"
 #include <pluginlib/class_list_macros.h>
 
+#include <algorithm>
+
 // para debugging
 #include <sstream>
 #include <string>
@@ -174,16 +176,17 @@ namespace myastar_planner {
     unsigned int explorados = 0;
     unsigned int currentIndex = cpstart.index;
 
-    while (!openQueue.empty()){} //while the open list is not empty continuie the search
+    while (!openQueue.empty()) { //while the open list is not empty continuie the search
 
-        //escoger el nodo (coupleOfCells) de abiertos que tiene el valor más pequeño de f.
-        coupleOfCells COfCells = openQueue.top();
-        currentIndex = COfCells.index;
+        // escoger el nodo (coupleOfCells) de abiertos que tiene el valor más pequeño de f.
+        coupleOfCells cOfCells = openQueue.top();
+        currentIndex = cOfCells.index;
 
         //vamos a insertar ese nodo  en cerrados
-
+        closedList.push_back(coupleOfCells(cOfCells));
+        /*
         //obtenemos un iterador a ese nodo en la lista de abiertos
-        std::list<coupleOfCells>::iterator it=getPositionInList(openList,currentIndex);
+        std::list<coupleOfCells>::iterator it = getPositionInList(openList,currentIndex);
 
 
         //copiamos el contenido de ese nodo a una variable nodo auxiliar
@@ -195,24 +198,24 @@ namespace myastar_planner {
 
 
         //y esa variable la insertamos en cerrados
-        MyastarPlanner::closedList.push_back(cpstart);
+        MyastarPlanner::closedList.push_back(cpstart);*/
         //ROS_INFO("Inserto en CERRADOS: %d", (*it).index );
-        ROS_INFO("G: %f, H: %f, F: %f", (*it).gCost, (*it).hCost, (*it).fCost);
-        ROS_INFO("Index: %d Parent: %d", (*it).index, (*it).parent);
+        ROS_INFO("G: %f, H: %f, F: %f", cOfCells.gCost, cOfCells.hCost, cOfCells.fCost);
+        ROS_INFO("Index: %d Parent: %d", cOfCells.index, cOfCells.parent);
 
         // Si el nodo recién insertado es el goal, ¡plan encontrado!
-        if(currentIndex==cpgoal.index  || explorados == 2000){
+        if (currentIndex==cpgoal.index  || explorados == 2000) {
           //el plan lo construimos partiendo del goal, del parent del goal y saltando en cerrados "de parent en parent"
           //y vamos insertando al final los waypoints (los nodos de cerrados)
 
-          ROS_INFO("¡¡¡ PLAN ENCONTRADO !!!");
+          ROS_INFO("PLAN ENCONTRADO !!!");
 
           //convertimos goal a poseStamped nueva
 
           geometry_msgs::PoseStamped pose;
           pose.header.stamp =  ros::Time::now();
           pose.header.frame_id = goal.header.frame_id;//debe tener el mismo frame que el goal pasado por parámetro
-          pose.pose.position.x = goal_x;explorados
+          pose.pose.position.x = goal_x;
           pose.pose.position.y = goal_y;
           pose.pose.position.z = 0.0;
           pose.pose.orientation.x = 0.0;
@@ -224,20 +227,20 @@ namespace myastar_planner {
           plan.push_back(pose);
           ROS_INFO("Inserta en Plan: %f, %f", pose.pose.position.x, pose.pose.position.y);
 
-          coupleOfCells currentCouple = cpstart;
-          unsigned int currentParent = cpstart.parent;
+          coupleOfCells currentCouple = cOfCells;
+          unsigned int currentParent = cOfCells.parent;
 
           while (currentCouple.index != currentParent){ //e.d. mientras no lleguemos al nodo start
             //encontramos la posición de currentParent en cerrados
 
-            std::list<coupleOfCells>::iterator it=getPositionInList(closedList,currentParent);
+            std::list<coupleOfCells>::iterator it = getPositionInList(closedList, currentParent);
 
             //hacemos esa posición que sea el currentCouple
-            currentCouple.index=currentParent;
-            currentCouple.parent=(*it).parent;
-            currentCouple.gCost=(*it).gCost;
-            currentCouple.hCost=(*it).hCost;
-            currentCouple.fCost=(*it).fCost;
+            currentCouple.index = currentParent;
+            currentCouple.parent = (*it).parent;
+            currentCouple.gCost = (*it).gCost;
+            currentCouple.hCost = (*it).hCost;
+            currentCouple.fCost = (*it).fCost;
 
             //creamos una PoseStamped con la información de currentCouple.index
 
@@ -276,12 +279,17 @@ namespace myastar_planner {
         }
 
         //Si no hemos encontrado plan aún eliminamos el nodo insertado de ABIERTOS.
-        openList.pop();
+        openQueue.pop();
 
         //Buscamos en el costmap las celdas adyacentes a la actual
-        std::vector<unsigned int> neighborCells=findFreeNeighborCell(currentIndex);
+        std::vector<unsigned int> neighborCells = findFreeNeighborCell(currentIndex);
 
         //Ignoramos las celdas que ya existen en CERRADOS
+        std::remove_if(neighborCells.begin(), neighborCells.end(), [&](unsigned int index) -> bool {
+          return std::any_of(closedList.begin(), closedList.end(), [&index](coupleOfCells cell) -> bool {
+            return cell.index == index;
+          });
+        });
 
 
         //Determinamos las celdas que ya están en ABIERTOS y las que no están en ABIERTOS
