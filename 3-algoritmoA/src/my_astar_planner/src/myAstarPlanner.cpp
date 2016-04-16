@@ -67,7 +67,7 @@ namespace myastar_planner {
   bool isContains(std::list<coupleOfCells> & list1, int cellID);
 
   MyastarPlanner::MyastarPlanner()
-  : costmap_ros_(NULL), initialized_(false) { ROS_INFO("Creating an uninitialized planner?"); }
+  : costmap_ros_(NULL), initialized_(true) { ROS_INFO("Creating an uninitialized planner?"); }
 
   MyastarPlanner::MyastarPlanner(std::string name, costmap_2d::Costmap2DROS* costmap_ros)
   : MyastarPlanner() {
@@ -77,7 +77,7 @@ namespace myastar_planner {
 
   //inicializador del global_planner, mejor no tocar nada.
   void MyastarPlanner::initialize(std::string name, costmap_2d::Costmap2DROS* costmap_ros){
-    if(!initialized_){
+    //if(!initialized_){
       costmap_ros_ = costmap_ros;
       costmap_ = costmap_ros_->getCostmap();
 
@@ -92,9 +92,9 @@ namespace myastar_planner {
       plan_pub_ = private_nh.advertise<nav_msgs::Path>("planTotal",1);
 
       initialized_ = true;
-    }
-    else
-      ROS_WARN("This planner has already been initialized... doing nothing");
+    //}
+    //else
+    //  ROS_WARN("This planner has already been initialized... doing nothing");
   }
 
   //esta función puede usarse para ayudar a calcular rutas seguras
@@ -188,17 +188,13 @@ namespace myastar_planner {
     unsigned int explorados = 0,
       currentIndex = cpstart.index;
 
-    while (!(currentIndex == cpgoal.index || explorados >= MAX_EXPLORADOS || openQueue.empty())) {
+    while (!(currentIndex == cpgoal.index || explorados++ >= MAX_EXPLORADOS || openQueue.empty())) {
       // escoger el nodo (coupleOfCells) de abiertos que tiene el valor más pequeño de f.
       coupleOfCells cOfCells = openQueue.top();
       currentIndex = cOfCells.index;
 
       // se inserta el nodo en cerrados (mediante constructor de copia)
       closedList.push_back(coupleOfCells(cOfCells));
-
-      //ROS_INFO("Inserto en CERRADOS: %d", (*it).index );
-      // ROS_INFO("G: %f, H: %f, F: %f", cOfCells.gCost, cOfCells.hCost, cOfCells.fCost);
-      // ROS_INFO("Index: %d Parent: %d", cOfCells.index, cOfCells.parent);
 
       if (currentIndex != cpgoal.index) {
         //Si no hemos encontrado plan aún eliminamos el nodo insertado de ABIERTOS.
@@ -225,16 +221,17 @@ namespace myastar_planner {
 
         //Añadimos a ABIERTOS las celdas que todavía no están en ABIERTO, marcando el nodo actual como su padre
         add_neighbors_to_queue(openQueue, fuera_begin, neighborCells.end(), currentIndex, cpstart.gCost, cpgoal.index);
-        explorados++;
 
         //Para los nodos que ya están en abiertos, comprobar en cerrados su coste y actualizarlo si fuera necesario
-        std::for_each(celdas_abiertos.begin(), celdas_abiertos.end(), [&](coupleOfCells& cell) {
+        std::for_each(celdas_abiertos.begin(), celdas_abiertos.end(), [&](const coupleOfCells& cell) {
           std::list<coupleOfCells>::iterator cerrada = std::find_if(closedList.begin(), closedList.end(), [&cell](coupleOfCells& closed_cell) {
             return closed_cell.index == cell.index;
           });
-          (*cerrada).gCost = cell.gCost;
-          (*cerrada).hCost = cell.hCost;
-          (*cerrada).fCost = cell.fCost;
+          if (cerrada != closedList.end()) {
+            (*cerrada).gCost = cell.gCost;
+            (*cerrada).hCost = cell.hCost;
+            (*cerrada).fCost = cell.fCost;
+          }
         });
       }
     }
