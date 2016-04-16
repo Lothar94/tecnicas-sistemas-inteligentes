@@ -348,11 +348,8 @@ namespace myastar_planner {
   //Output: index of the cell in the list
   //Description: it is used to search the index of a cell in a list
   /*********************************************************************************/
-  std::list<coupleOfCells>::iterator getPositionInList(std::list<coupleOfCells> & list1, unsigned int cellID){
-     for (std::list<coupleOfCells>::iterator it = list1.begin(); it != list1.end(); it++){
-       if (it->index == cellID)
-           return it;
-     }
+  std::list<coupleOfCells>::iterator getPositionInList(std::list<coupleOfCells> & list1, unsigned int cellId){
+    return std::find_if(list1.begin(), list1.end(), [&cellId](coupleOfCells cell) { return cell.index == cellId; });
   }
 
 
