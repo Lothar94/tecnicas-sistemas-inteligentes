@@ -1,6 +1,6 @@
 ---
 title: "Técnicas de los Sistemas Inteligentes"
-subtitle: "Práctica 1 - Entrega 2: Navegación local con y sin mapa"
+subtitle: "Práctica 1 - Entrega 3: Navegación global"
 author:
   - José Pimentel Mesones
   - Lothar Soto Palma
@@ -26,6 +26,12 @@ header-includes:
 \pagebreak
 
 # Extensión del algoritmo A*
+
+## Modificación de estructuras de datos
+
+Para conseguir un funcionamiento más intuitivo del algoritmo A*, hemos hecho algunos cambios en las estructuras de datos ya presentes en el código. Hemos pasado de gestionar la lista de ABIERTOS como una lista de la STL a una cola con prioridad, que nos permite ordenar los nodos en ABIERTOS según el valor de la función _f(n)_, lo que hace que tomar el mejor nodo sea rápido y no implique un proceso de búsqueda en toda la lista.
+
+Asimismo, la función de orden que hemos usado para la cola con prioridad estaba ya implementada como el método _compareFCost_, pero para simplificar, hemos convertido el tipo de dato coupleOfCells de _struct_ a _class_, y hemos implementado un operador de comparación. 
 
 # Mejora del algoritmo A*
 
