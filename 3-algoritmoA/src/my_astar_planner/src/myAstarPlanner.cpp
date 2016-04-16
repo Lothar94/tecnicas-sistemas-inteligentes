@@ -116,7 +116,7 @@ namespace myastar_planner {
   //función llamada por move_base para obtener el plan.
   bool MyastarPlanner::makePlan(const geometry_msgs::PoseStamped& start,
     const geometry_msgs::PoseStamped& goal, std::vector<geometry_msgs::PoseStamped>& plan){
-    const unsigned int MAX_EXPLORADOS = 2000;
+    const unsigned int MAX_EXPLORADOS = 10000;
 
     //***********************************************************
     // Inicio de gestion de ROS, mejor no tocar nada en esta parte
@@ -224,7 +224,7 @@ namespace myastar_planner {
         });
 
         //Añadimos a ABIERTOS las celdas que todavía no están en ABIERTO, marcando el nodo actual como su padre
-        add_neighbors_to_queue(openQueue, fuera_begin, neighborCells.end(), currentIndex, cpstart.gCost, cpgoal.index);
+        add_neighbors_to_queue(openQueue, fuera_begin, neighborCells.end(), currentIndex, cpstart.gCost, cpgoal.index, cpstart.index);
 
         //Para los nodos que ya están en abiertos, comprobar en cerrados su coste y actualizarlo si fuera necesario
         std::for_each(celdas_abiertos.begin(), celdas_abiertos.end(), [&](const coupleOfCells& cell) {
@@ -408,9 +408,10 @@ namespace myastar_planner {
   //Description: it is used to add the neighbor Cells to the open queue
   /*********************************************************************************/
   template<class T, class S, class C>
-  void MyastarPlanner::add_neighbors_to_queue(std::priority_queue<T, S, C>& abiertos, std::vector<unsigned int>::iterator first, std::vector<unsigned int>::iterator last, unsigned int parent, double parent_cost, unsigned int goal) {
+  void MyastarPlanner::add_neighbors_to_queue(std::priority_queue<T, S, C>& abiertos, std::vector<unsigned int>::iterator first, std::vector<unsigned int>::iterator last, unsigned int parent, double parent_cost, unsigned int goal, unsigned int start) {
     std::for_each(first, last, [&](unsigned int neighbor_cell) {
       T neighbor;
+      double w;
 
       neighbor.index = neighbor_cell;
       neighbor.parent = parent;
@@ -418,8 +419,11 @@ namespace myastar_planner {
       neighbor.gCost = parent_cost + getMoveCost(parent, neighbor_cell);
       //calculate the hCost: Euclidian distance from the neighbor cell to the goalCell
       neighbor.hCost = calculateHCost(neighbor_cell, goal);
+      //Pesos
+      w = calculateHCost(neighbor_cell,goal)/calculateHCost(start, goal);
+      //ROS_INFO("peso: %f", w);
       //calculate fcost
-      neighbor.fCost = neighbor.gCost + neighbor.hCost;
+      neighbor.fCost = neighbor.gCost + w*neighbor.hCost;
 
       abiertos.push(neighbor);
     });

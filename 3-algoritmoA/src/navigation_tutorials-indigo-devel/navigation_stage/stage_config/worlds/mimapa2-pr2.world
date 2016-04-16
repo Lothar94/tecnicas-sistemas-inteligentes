@@ -49,8 +49,8 @@ interval_sim 100  # simulation timestep in milliseconds
 
 
 window
-( 
-  size [ 640.000 400.000 ] 
+(
+  size [ 640.000 400.000 ]
 
   rotate [ 0.000 0.000 ]
   scale 10
@@ -58,7 +58,7 @@ window
 
 # load an environment bitmap
 floorplan
-( 
+(
   name "mimapa"
   bitmap "../maps/mapa2.jpg"
   size [21.00 13.00 0.5]
@@ -66,5 +66,5 @@ floorplan
 )
 
 # throw in a robot
-pr2( pose [ -9.0 1.0 0.0 0.0 ] name "pr2" color "blue")
+pr2( pose [ -8.0 0.5 0.0 0.0 ] name "pr2" color "blue")
 block( pose [ -8.269 48.001 0 180.000 ] color "red")

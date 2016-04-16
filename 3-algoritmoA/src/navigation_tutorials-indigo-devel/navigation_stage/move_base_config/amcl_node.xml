@@ -6,9 +6,9 @@
   <remap from="scan" to="base_scan" />
 
   <!-- Se aplica rotación de 3/4 τ (270°) -->
-  <param name="initial_pose_y" value="28.4"/>
-  <param name="initial_pose_x" value="13.279"/>
-  <param name="initial_pose_a" value="0.175"/>
+  <param name="initial_pose_y" value="26.07"/>
+  <param name="initial_pose_x" value="12.14"/>
+  <param name="initial_pose_a" value="0.1"/>
 
   <!-- Publish scans from best pose at a max of 10 Hz -->
   <param name="odom_model_type" value="omni"/>
