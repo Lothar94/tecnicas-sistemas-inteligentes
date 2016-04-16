@@ -158,6 +158,10 @@ namespace myastar_planner {
     /*************** HASTA AQUÍ GESTIÓN DE ROS *********************************/
     /****************************************************************************/
 
+    // declaramos las estructuras de datos para uso del algoritmo A*
+    std::priority_queue<coupleOfCells, std::vector<coupleOfCells>, std::greater<coupleOfCells> > openQueue;
+    std::list<coupleOfCells> closedList; //!< the closed list: contains the explored cells
+
     //pasamos el goal y start a un nodo (estructura coupleOfCells)
     coupleOfCells cpstart, cpgoal;
     double goal_x = goal.pose.position.x;

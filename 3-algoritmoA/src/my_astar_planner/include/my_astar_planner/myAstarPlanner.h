@@ -125,11 +125,6 @@ namespace myastar_planner{
     //para publicar el plan
     ros::Publisher plan_pub_;
 
-    //necesarios para manejar las listas de abiertos y cerrados de astar.
-    std::list<coupleOfCells> openList; //!< the open list: it contains all the expanded cells (current cells)
-    std::priority_queue<coupleOfCells, std::vector<coupleOfCells>, std::greater<coupleOfCells> > openQueue;
-    std::list<coupleOfCells> closedList; //!< the closed list: contains the explored cells
-
     /**
     * @brief  Checks the legality of the robot footprint at a position and orientation using the world model
     * @param x_i The x position of the robot
