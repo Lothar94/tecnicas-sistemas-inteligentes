@@ -67,7 +67,7 @@ namespace myastar_planner {
   bool isContains(std::list<coupleOfCells> & list1, int cellID);
 
   MyastarPlanner::MyastarPlanner()
-  : costmap_ros_(NULL), initialized_(true) { ROS_INFO("Creating an uninitialized planner?"); }
+  : costmap_ros_(NULL), initialized_(false) { ROS_INFO("Creating an uninitialized planner?"); }
 
   MyastarPlanner::MyastarPlanner(std::string name, costmap_2d::Costmap2DROS* costmap_ros)
   : MyastarPlanner() {
@@ -77,7 +77,7 @@ namespace myastar_planner {
 
   //inicializador del global_planner, mejor no tocar nada.
   void MyastarPlanner::initialize(std::string name, costmap_2d::Costmap2DROS* costmap_ros){
-    //if(!initialized_){
+    if(!initialized_){
       costmap_ros_ = costmap_ros;
       costmap_ = costmap_ros_->getCostmap();
 
@@ -92,9 +92,9 @@ namespace myastar_planner {
       plan_pub_ = private_nh.advertise<nav_msgs::Path>("planTotal",1);
 
       initialized_ = true;
-    //}
-    //else
-    //  ROS_WARN("This planner has already been initialized... doing nothing");
+    }
+    else
+     ROS_WARN("This planner has already been initialized... doing nothing");
   }
 
   //esta función puede usarse para ayudar a calcular rutas seguras
