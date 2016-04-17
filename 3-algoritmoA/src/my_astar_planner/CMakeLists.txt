@@ -128,9 +128,9 @@ add_library(my_astar_planner
 # add_dependencies(my_astar_planner_node my_astar_planner_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
-# target_link_libraries(my_astar_planner_node
-#   ${catkin_LIBRARIES}
-# )
+target_link_libraries(my_astar_planner
+ ${catkin_LIBRARIES}
+)
 
 #############
 ## Install ##

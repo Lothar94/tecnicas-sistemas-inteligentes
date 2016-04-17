@@ -84,6 +84,10 @@ namespace myastar_planner{
     }
   };
 
+  class MyCostmapModel : public base_local_planner::CostmapModel {
+  public:
+    MyCostmapModel(costmap_2d::Costmap2D& c) :CostmapModel(c) {}
+  };
 
   class MyastarPlanner : public nav_core::BaseGlobalPlanner { //implementa la interfaz que provee nav_core::BaseGlobalPlanner
   public:

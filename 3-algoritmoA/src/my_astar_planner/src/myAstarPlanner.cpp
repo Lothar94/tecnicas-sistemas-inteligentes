@@ -107,12 +107,12 @@ namespace myastar_planner {
 
     std::vector<geometry_msgs::Point> footprint = costmap_ros_->getRobotFootprint();
     //if we have no footprint... do nothing
-    if (footprint.size() < 3)
-      return 0.0;
-    else
-      return footprint.size() / 3.0;
-
-    return 0.0;
+    if (footprint.size() < 3) {
+      return -1.0;
+    } else {
+      double footprint_cost = MyCostmapModel(*costmap_).footprintCost(x_i, y_i, theta_i, footprint);
+      return footprint_cost;
+    }
   }
 
   //función llamada por move_base para obtener el plan.
