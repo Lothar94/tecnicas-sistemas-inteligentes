@@ -107,10 +107,12 @@ namespace myastar_planner {
 
     std::vector<geometry_msgs::Point> footprint = costmap_ros_->getRobotFootprint();
     //if we have no footprint... do nothing
-    if(footprint.size() < 3)
-      return -1.0;
+    if (footprint.size() < 3)
+      return 0.0;
+    else
+      return footprint.size() / 3.0;
 
-    return -1.0;
+    return 0.0;
   }
 
   //función llamada por move_base para obtener el plan.
@@ -350,7 +352,7 @@ namespace myastar_planner {
   //Description: it is used to search the index of a cell in a list
   /*********************************************************************************/
   std::list<coupleOfCells>::iterator getPositionInList(std::list<coupleOfCells> & list1, unsigned int cellId){
-    return std::find_if(list1.begin(), list1.end(), [&cellId](coupleOfCells cell) { return cell.index == cellId; });
+    return std::find_if(list1.begin(), list1.end(), [&cellId](const coupleOfCells& cell) { return cell.index == cellId; });
   }
 
 
@@ -388,12 +390,8 @@ namespace myastar_planner {
   //Output: true or false
   //Description: it is used to check if a cell exists in the open list or in the closed list
   /*********************************************************************************/
-   bool isContains(std::list<coupleOfCells> & list1, int cellID){
-     for (std::list<coupleOfCells>::iterator it = list1.begin(); it != list1.end(); it++){
-       if (it->index == cellID)
-           return true;
-      }
-     return false;
+  bool isContains(std::list<coupleOfCells> & list1, int cellID){
+    return std::any_of(list1.begin(), list1.end(), [&](const coupleOfCells& cell) { return cell.index == cellID; });
   }
 
   double MyastarPlanner::getMoveCost(unsigned int here, unsigned int there) {
@@ -412,11 +410,13 @@ namespace myastar_planner {
     std::for_each(first, last, [&](unsigned int neighbor_cell) {
       T neighbor;
       double w;
+      unsigned int x, y;
+      costmap_->indexToCells(neighbor_cell, x, y);
 
       neighbor.index = neighbor_cell;
       neighbor.parent = parent;
       //calculate the gCost
-      neighbor.gCost = parent_cost + getMoveCost(parent, neighbor_cell);
+      neighbor.gCost = parent_cost + getMoveCost(parent, neighbor_cell) + footprintCost(x, y, 0);
       //calculate the hCost: Euclidian distance from the neighbor cell to the goalCell
       neighbor.hCost = calculateHCost(neighbor_cell, goal);
       //Pesos
