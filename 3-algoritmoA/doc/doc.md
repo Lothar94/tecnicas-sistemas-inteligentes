@@ -45,7 +45,7 @@ En la experimentación hemos detectado que al pasarle un objetivo lejano al robo
 
 - Aumentar el número de iteraciones máximas que el algoritmo puede realizar, lo que nos permite llegar a objetivos más lejanos, en el caso en el que la exploración en A* sea muy costosa.
 
-- Añadir un peso a la función _h(n)_.
+- Añadir un peso a la función _h(n)_. Usamos una nueva función _w(n)_ que actúa como peso dinámico de la función _h(n)_. Para calcular dicho peso, dividimos el valor de la función _h_ calculada en el nodo actual entre el valor en el nodo _start_. De esta forma, conseguimos que la función _h_ pierda relevancia conforme nos vamos acercando al objetivo, tomando más importancia la distancia real hasta el punto (la función _g_) que la estimación que calculamos. 
 
 - Reducir la resolución del mapa, para tener un menor número de nodos que explorar. Al tener una resolución demasiado alta, el número de casillas exploradas puede ser excesivo en comparación con la distancia real recorrida, lo que nos lleva a tener unos tiempos de computación altos.
 
