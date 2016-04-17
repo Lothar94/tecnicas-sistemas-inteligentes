@@ -31,7 +31,7 @@ header-includes:
 
 Para conseguir un funcionamiento más intuitivo del algoritmo A*, hemos hecho algunos cambios en las estructuras de datos ya presentes en el código. Hemos pasado de gestionar la lista de ABIERTOS como una lista de la STL a una cola con prioridad, que nos permite insertar ordenadamente los nodos en ABIERTOS según el valor de la función $f(n)$, lo que hace que tomar el mejor nodo sea rápido y no implique un proceso de búsqueda en toda la lista.
 
-Dicha cola con prioridad va soportada sobre un vector de la STL, y utiliza un operador de comparación para el orden. Este  operador se ha implementado para los elementos `coupleOfCells`, que ha pasado de ser un *struct* a una clase para defenir el método `operator>`, que simula el comportamiento que había implementado en la función `compareFCost`.
+Dicha cola con prioridad va soportada sobre un vector de la STL, y utiliza un operador de comparación para el orden. Este operador se ha implementado para los elementos `coupleOfCells`, que ha pasado de ser un *struct* a una clase para defenir el método `operator>`, que simula el comportamiento que había implementado en la función `compareFCost`.
 
 ## Implementación
 
@@ -64,7 +64,7 @@ Para evitar que el robot pase demasiado cerca de obstáculos e incluso se choque
 
 ## willow_garage
 
-El mapa *willow_garage* es complejo y está lleno de obstáculos, por eso se ha elegido un camino corto para ilustrar el comportamiento del algoritmo A* en nuestro robot. En una de las "habitaciones" inferiores, se ha colocado al robot en un extremo y se le ha ubicado el objetivo en la otra punta de la habitación, como se observa en la Figura \ref{willow1} que representa el camino (sobre RViz) que encuentra el robot.
+El mapa *willow_garage* es complejo y está lleno de obstáculos, por lo que se ha elegido un camino corto para ilustrar el comportamiento del algoritmo A* en nuestro robot. En una de las "habitaciones" inferiores, se ha colocado al robot en un extremo y se le ha ubicado el objetivo en el extremo opuesto de la habitación, como se observa en la Figura \ref{willow1}, que representa el camino (sobre RViz) que encuentra el robot.
 
 ![\label{willow1} Camino seguido por el robot en *willow_garage*](img/willow_1.png)
 
@@ -76,9 +76,11 @@ Por último, se muestra en la Figura \ref{willow3} que el robot alcanza su objet
 
 ![\label{willow3} El robot alcanza el objetivo](img/willow_3.png)
 
-El resto de la experimentación se han realizado en los mapas *autolab* y *simple_rooms*. Primero hemos tenido que ajustar las coordenadas de los costmap de ambos mapas pues no se correspondian con las del stage y tampoco con las coordenadas rotadas 270º, por lo que hemos tenido que calcularlas. Han sido añadidas al archivo **amcl_node.xml** a modo de comentario.
+El resto de la experimentación se han realizado en los mapas *autolab* y *simple_rooms*. En estos casos, antes de pasar a la ejecución, hemos tenido que ajustar las coordenadas de los costmap de ambos mapas, pues no se correspondian con las del stage y tampoco con las coordenadas rotadas 270º, por lo que hemos tenido que calcularlas. Han sido añadidas al archivo **amcl_node.xml** a modo de comentario.
 
-El mapa *autolab*  es relativamente sencillo al no tener apenas obstaculos como observamos en la figura \ref{autolab1}, el algoritmo es capaz de buscar caminos mínimos en el caso de que tenga una ruta sin muchos obstaculos \ref{autolab2}, sin embargo debido a que la resolución del mapa es mayor a el anterior para distancias más cortas requieren de una búsqueda de mayor profundidad para obtener un camino mínimo y la capacidad máxima de búsqueda para el algoritmo puede agotarse. Como se puede observar seguimos evadiendo celdas ilegales al igual que se realizó anteriormente como vemos en \ref{autolab3}.
+## autolab
+
+El mapa *autolab* es relativamente sencillo al no tener apenas obstáculos, como observamos en la figura \ref{autolab1}. El algoritmo es capaz de buscar caminos mínimos en el caso de que tenga una ruta sin muchos obstáculos, aunque debido a que la resolución del mapa es mayor a la anterior, distancias más cortas requieren de una búsqueda de mayor profundidad para obtener un camino mínimo, haciendo que la capacidad máxima de búsqueda del algoritmo pueda agotarse. Como se puede observar en la Figura \ref{autolab2}, seguimos evadiendo celdas ilegales. Finalmente, en la Figura \ref{autolab3} vemos como el robot alcanza el objetivo.
 
 ![\label{autolab1} El robot en su pose inicial](img/autolab_1.png)
 
