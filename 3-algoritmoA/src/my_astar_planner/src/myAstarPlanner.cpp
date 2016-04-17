@@ -43,6 +43,7 @@
 // para debugging
 #include <sstream>
 #include <string>
+#include <chrono>
 
 // Hack para acceder al container de la priority_queue
 template <class T, class S, class C>
@@ -108,7 +109,7 @@ namespace myastar_planner {
     std::vector<geometry_msgs::Point> footprint = costmap_ros_->getRobotFootprint();
     //if we have no footprint... do nothing
     if (footprint.size() < 3) {
-      return -1.0;
+      return 0.0;
     } else {
       double footprint_cost = MyCostmapModel(*costmap_).footprintCost(x_i, y_i, theta_i, footprint);
       return footprint_cost;
@@ -159,6 +160,8 @@ namespace myastar_planner {
     /**************************************************************************/
     /*************** HASTA AQUÍ GESTIÓN DE ROS *********************************/
     /****************************************************************************/
+
+    auto start_time = std::chrono::high_resolution_clock::now();
 
     // declaramos las estructuras de datos para uso del algoritmo A*
     std::priority_queue<coupleOfCells, std::vector<coupleOfCells>, std::greater<coupleOfCells> > openQueue;
@@ -242,6 +245,10 @@ namespace myastar_planner {
       }
     }
 
+    auto stop_time = std::chrono::high_resolution_clock::now();
+
+    std::cerr << "Bucle A* terminado en " << std::chrono::duration_cast<std::chrono::microseconds>(stop_time - start_time).count() << " microsegundos" << std::cerr;
+
     if (currentIndex == cpgoal.index) {
       //el plan lo construimos partiendo del goal, del parent del goal y saltando en cerrados "de parent en parent"
       //y vamos insertando al final los waypoints (los nodos de cerrados)
@@ -263,7 +270,7 @@ namespace myastar_planner {
 
       // Lo añadimos al plan
       plan.push_back(pose);
-      ROS_INFO("Inserta en Plan: %f, %f", pose.pose.position.x, pose.pose.position.y);
+      //ROS_INFO("Inserta en Plan: %f, %f", pose.pose.position.x, pose.pose.position.y);
 
       std::list<coupleOfCells>::iterator goal_it = std::find_if(closedList.begin(), closedList.end(), [&](coupleOfCells cell) { return cell.index == cpgoal.index; });
       coupleOfCells currentCouple = *goal_it;
@@ -304,7 +311,7 @@ namespace myastar_planner {
 
         //insertamos la pose en el plan
         plan.push_back(pose);
-        ROS_INFO("Inserta en Plan: %f, %f", pose.pose.position.x, pose.pose.position.y);
+        //ROS_INFO("Inserta en Plan: %f, %f", pose.pose.position.x, pose.pose.position.y);
         //hacemos que currentParent sea el parent de currentCouple
         currentParent = currentCouple.parent;
       }
