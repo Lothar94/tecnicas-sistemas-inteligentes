@@ -64,7 +64,7 @@ Para evitar que el robot pase demasiado cerca de obstáculos e incluso se choque
 
 ## willow_garage
 
-El mapa *willow_garage* es complejo y está lleno de obstáculos, por eso se ha elegido un camino corto para ilustrar el comportamiento del algoritmo A* en nuestro robot. En una de las "habitaciones inferiores", se ha colocado al robot en un extremo y se le ha ubicado el objetivo en la otra punta de la habitación, como se observa en la Figura \ref{willow1} que representa el camino (sobre RViz) que encuentra el robot.
+El mapa *willow_garage* es complejo y está lleno de obstáculos, por eso se ha elegido un camino corto para ilustrar el comportamiento del algoritmo A* en nuestro robot. En una de las "habitaciones" inferiores, se ha colocado al robot en un extremo y se le ha ubicado el objetivo en la otra punta de la habitación, como se observa en la Figura \ref{willow1} que representa el camino (sobre RViz) que encuentra el robot.
 
 ![\label{willow1} Camino seguido por el robot en *willow_garage*](img/willow_1.png)
 
