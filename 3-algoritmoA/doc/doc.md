@@ -76,9 +76,9 @@ Por último, se muestra en la Figura \ref{willow3} que el robot alcanza su objet
 
 ![\label{willow3} El robot alcanza el objetivo](img/willow_3.png)
 
-El resto de la experimentación se han realizado en los mapas *autolab* y *simple_rooms*. Primero hemos tenido que ajustar las coordenadas de los costmap de ambos mapas pues no se correspondian con las del stage y tampoco con las coordenadas rotados 270º, por lo que mejos tenido que calcularlas. Han sido añadidas al archivo **amcl_node.xml** a modo de comentario.
+El resto de la experimentación se han realizado en los mapas *autolab* y *simple_rooms*. Primero hemos tenido que ajustar las coordenadas de los costmap de ambos mapas pues no se correspondian con las del stage y tampoco con las coordenadas rotadas 270º, por lo que hemos tenido que calcularlas. Han sido añadidas al archivo **amcl_node.xml** a modo de comentario.
 
-El mapa *autolab*  es relativamente sencillo al no tener a penas obstaculos como observamos en la figura \ref{autolab1}, el algoritmo es capaz de buscar caminos mínimos en el caso de que tenga una ruta sin muchos obstaculos \ref{autolab2}, sin embargo debido a que la resolución del mapa es mayor a el anterior para distancias más cortas requieren de una búsqueda más en profundidad para obtener un camino mínimo y la capacidad máxima de búsqueda para el algoritmo puede agotarse. Como se puede observar seguimos evadiendo celdas ilegales como se realizo anteriormente como vemos en \ref{autolab3}.
+El mapa *autolab*  es relativamente sencillo al no tener apenas obstaculos como observamos en la figura \ref{autolab1}, el algoritmo es capaz de buscar caminos mínimos en el caso de que tenga una ruta sin muchos obstaculos \ref{autolab2}, sin embargo debido a que la resolución del mapa es mayor a el anterior para distancias más cortas requieren de una búsqueda de mayor profundidad para obtener un camino mínimo y la capacidad máxima de búsqueda para el algoritmo puede agotarse. Como se puede observar seguimos evadiendo celdas ilegales al igual que se realizó anteriormente como vemos en \ref{autolab3}.
 
 ![\label{autolab1} El robot en su pose inicial](img/autolab_1.png)
 
