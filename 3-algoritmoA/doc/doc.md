@@ -41,13 +41,22 @@ Hemos mantenido las funciones $g(n)$ y $h(n)$ que venían en el código, que usa
 
 # Mejora del algoritmo A*
 
-En la experimentación hemos detectado que al pasarle un objetivo lejano al robot, el número de iteraciones no era suficiente para que el algoritmo A* encontrase un camino hasta dicho objetivo, lo que hacía que tuviera un comportamiento errático no deseado. Para solucionar esta situación, hemos hecho diversas modificaciones:
+En la experimentación hemos detectado que al pasarle un objetivo lejano al robot, el número de iteraciones no era suficiente para que el algoritmo A* encontrase un camino hasta dicho objetivo, lo que hacía que tuviera un comportamiento errático no deseado. Para solucionar esta situación, hemos hecho diversas modificaciones.
 
-- Aumentar el número de iteraciones máximas que el algoritmo puede realizar, lo que nos permite llegar a objetivos más lejanos, en el caso en el que la exploración en A* sea muy costosa.
+## Modificación del número de iteraciones
 
-- Añadir un peso a la función $h(n)$. Usamos una nueva función $w(n)$ que actúa como peso dinámico de la función $h(n)$. Para calcular dicho peso, dividimos el valor de la función $h$ calculada en el nodo actual entre el valor en el nodo _start_. De esta forma, conseguimos que la función $h$ pierda relevancia conforme nos vamos acercando al objetivo, tomando más importancia la distancia real hasta el punto (la función $g$) que la estimación que calculamos.
+Aumentar el número de iteraciones máximas que el algoritmo puede realizar, lo que nos permite llegar a objetivos más lejanos, en el caso en el que la exploración en A* sea muy costosa.
 
-- Reducir la resolución del mapa, para tener un menor número de nodos que explorar. Al tener una resolución demasiado alta, el número de casillas exploradas puede ser excesivo en comparación con la distancia real recorrida, lo que nos lleva a tener unos tiempos de computación altos.
+## Adición de pesos
 
+Para añadir un peso a la función $h(n)$, usamos una nueva función $w(n)$ que actúa como peso dinámico de la función $h(n)$. Para calcular dicho peso, dividimos el valor de la función $h$ calculada en el nodo actual entre el valor en el nodo _start_. De esta forma, conseguimos que la función $h$ pierda relevancia conforme nos vamos acercando al objetivo, tomando más importancia la distancia real hasta el punto (la función $g$) que la estimación que calculamos.
+
+## Gestión de la resolución
+
+Se ha reducido la resolución del mapa, para tener un menor número de nodos que explorar. Al tener una resolución demasiado alta, el número de casillas exploradas puede ser excesivo en comparación con la distancia real recorrida, lo que nos lleva a tener unos tiempos de computación altos.
+
+## Cálculo del coste del *footprint*
+
+Para evitar que el robot pase demasiado cerca de obstáculos e incluso se choque con ellos, se ha completado la implementación de la función `footprintCost`, que permite averiguar si la posición de la silueta del robot sobre una celda es legal (es decir, si no se choca con un obstáculo).
 
 # Experimentación en Stage
