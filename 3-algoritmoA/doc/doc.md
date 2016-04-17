@@ -75,3 +75,13 @@ Observamos en la Figura \ref{willow2} cómo las mejoras de la sección \ref{mejo
 Por último, se muestra en la Figura \ref{willow3} que el robot alcanza su objetivo con éxito.
 
 ![\label{willow3} El robot alcanza el objetivo](img/willow_3.png)
+
+El resto de la experimentación se han realizado en los mapas *autolab* y *simple_rooms*. Primero hemos tenido que ajustar las coordenadas de los costmap de ambos mapas pues no se correspondian con las del stage y tampoco con las coordenadas rotados 270º, por lo que mejos tenido que calcularlas. Han sido añadidas al archivo **amcl_node.xml** a modo de comentario.
+
+El mapa *autolab*  es relativamente sencillo al no tener a penas obstaculos como observamos en la figura \ref{autolab1}, el algoritmo es capaz de buscar caminos mínimos en el caso de que tenga una ruta sin muchos obstaculos \ref{autolab2}, sin embargo debido a que la resolución del mapa es mayor a el anterior para distancias más cortas requieren de una búsqueda más en profundidad para obtener un camino mínimo y la capacidad máxima de búsqueda para el algoritmo puede agotarse. Como se puede observar seguimos evadiendo celdas ilegales como se realizo anteriormente como vemos en \ref{autolab3}.
+
+![\label{autolab1} El robot en su pose inicial](img/autolab_1.png)
+
+![\label{autolab2} El robot se dirige el objetivo evadiendo celdas ilegales](img/autolab_2.png)
+
+![\label{autolab3} El robot alcanza el objetivo](img/autolab_3.png)

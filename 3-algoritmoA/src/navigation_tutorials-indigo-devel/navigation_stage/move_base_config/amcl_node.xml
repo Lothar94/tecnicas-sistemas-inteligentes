@@ -6,9 +6,12 @@
   <remap from="scan" to="base_scan" />
 
   <!-- Se aplica rotación de 3/4 τ (270°) -->
-  <param name="initial_pose_y" value="26.07"/>
-  <param name="initial_pose_x" value="12.14"/>
-  <param name="initial_pose_a" value="0.1"/>
+  <!-- Coordenadas willow x: 12.14, y: 26.07 a: 0.1-->
+  <!-- Coordenadas Simple_rooms y: 28.557 x: 21.313 a: 180 -->
+  <!-- Coordenadas autolab x:21.313 y: 4.557 a: 180  -->
+  <param name="initial_pose_x" value="21.313"/>
+  <param name="initial_pose_y" value="4.557"/>
+  <param name="initial_pose_a" value="180"/>
 
   <!-- Publish scans from best pose at a max of 10 Hz -->
   <param name="odom_model_type" value="omni"/>
