@@ -40,6 +40,7 @@ El resto de la implementación consiste en seguir los pasos del algoritmo A*. Co
 Hemos mantenido las funciones $g(n)$ y $h(n)$ que venían en el código, que usan la distancia euclídea.
 
 # Mejora del algoritmo A*
+\label{mejoras}
 
 En la experimentación hemos detectado que al pasarle un objetivo lejano al robot, el número de iteraciones no era suficiente para que el algoritmo A* encontrase un camino hasta dicho objetivo, lo que hacía que tuviera un comportamiento errático no deseado. Para solucionar esta situación, hemos hecho diversas modificaciones.
 
@@ -60,3 +61,17 @@ Se ha reducido la resolución del mapa, para tener un menor número de nodos que
 Para evitar que el robot pase demasiado cerca de obstáculos e incluso se choque con ellos, se ha completado la implementación de la función `footprintCost`, que permite averiguar si la posición de la silueta del robot sobre una celda es legal (es decir, si no se choca con un obstáculo).
 
 # Experimentación en Stage
+
+## willow_garage
+
+El mapa *willow_garage* es complejo y está lleno de obstáculos, por eso se ha elegido un camino corto para ilustrar el comportamiento del algoritmo A* en nuestro robot. En una de las "habitaciones inferiores", se ha colocado al robot en un extremo y se le ha ubicado el objetivo en la otra punta de la habitación, como se observa en la Figura \ref{willow1} que representa el camino (sobre RViz) que encuentra el robot.
+
+![\label{willow1} Camino seguido por el robot en *willow_garage*](img/willow_1.png)
+
+Observamos en la Figura \ref{willow2} cómo las mejoras de la sección \ref{mejoras} permiten que el cálculo se haya realizado de forma rápida (aproximadamente 0,8 segundos) y el robot deje algo de espacio con los obstáculos.
+
+![\label{willow2} El robot sortea los obstáculos del camino](img/willow_2.png)
+
+Por último, se muestra en la Figura \ref{willow3} que el robot alcanza su objetivo con éxito.
+
+![\label{willow3} El robot alcanza el objetivo](img/willow_3.png)
