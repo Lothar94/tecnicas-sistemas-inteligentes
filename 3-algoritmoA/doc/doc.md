@@ -87,3 +87,17 @@ El mapa *autolab* es relativamente sencillo al no tener apenas obstáculos, como
 ![\label{autolab2} El robot se dirige el objetivo evadiendo celdas ilegales](img/autolab_2.png)
 
 ![\label{autolab3} El robot alcanza el objetivo](img/autolab_3.png)
+
+## simple_rooms
+
+El mapa *simple_rooms* como el anterior carece de obstaculos, pero al ser habitaciónes cerradas con una única salida y tener también una resolución mayor que el *willow* es posible que no encuentre un camino por falta de capacidad. En este caso se ha probado a avanzar con el robot dando objetivos cercanos sin muchos obstáculos o con obstáculos que pueden evitarse facilmente, de esta manera el algoritmo encuentra soluciones con bastante rapidez como podemos ver en las figuras \ref{simple2} y \ref{simple3}, sin embargo una vez nos hemos avanzado lo suficiente, probamos a darle un objetivo cercano pero obstaculizado por las paredes como en la figura \ref{simple4}, como podemos observar en la última figura \ref{simple5} no es posible encontrar un plan debido a la resolución actual del mapa y su forma ya que excede la capacidad.
+
+![\label{simple1} El robot en su pose inicial](img/simple_1.png)
+
+![\label{simple2} El robot alcanza un objetivo cercano](img/simple_2.png)
+
+![\label{simple3} El robot alcanza el objetivo cercano](img/simple_3.png)
+
+![\label{simple4} Se envia objetivo obstaculizado al robot](img/simple_4.png)
+
+![\label{simple5} No se encuentra plan para el robot](img/simple_5.png)
