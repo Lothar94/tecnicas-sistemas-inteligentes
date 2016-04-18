@@ -247,7 +247,7 @@ namespace myastar_planner {
 
     auto stop_time = std::chrono::high_resolution_clock::now();
 
-    std::cerr << "Bucle A* terminado en " << std::chrono::duration_cast<std::chrono::microseconds>(stop_time - start_time).count() << " microsegundos" << std::cerr;
+    std::cerr << "Bucle A* terminado en " << std::chrono::duration_cast<std::chrono::microseconds>(stop_time - start_time).count() << " microsegundos" << std::endl;
 
     if (currentIndex == cpgoal.index) {
       //el plan lo construimos partiendo del goal, del parent del goal y saltando en cerrados "de parent en parent"

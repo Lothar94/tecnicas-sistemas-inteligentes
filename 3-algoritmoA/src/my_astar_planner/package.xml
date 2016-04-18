@@ -1,13 +1,18 @@
 <?xml version="1.0"?>
 <package>
-  <name>my_astar_planner</name>
+  <name>subgrupo2_5_entrega3</name>
   <version>0.0.0</version>
   <description>The my_astar_planner package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->
   <!-- <maintainer email="jane.doe@example.com">Jane Doe</maintainer> -->
-  <maintainer email="juan@todo.todo">juan</maintainer>
+
+  <maintainer email="grupo2@martes.tsi">SGrupo2.5</maintainer>
+  <author>Francisco David Charte Luque</author>
+  <author>José Carlos Entrena Jiménez</author>
+  <author>José Pimentel Mesones</author>
+  <author>Lothar Soto Palma</author>
 
 
   <!-- One license tag required, multiple allowed, one license per tag -->

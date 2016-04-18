@@ -70,7 +70,11 @@ El mapa *willow_garage* es complejo y está lleno de obstáculos, por lo que se 
 
 Observamos en la Figura \ref{willow2} cómo las mejoras de la sección \ref{mejoras} permiten que el cálculo se haya realizado de forma rápida (aproximadamente 0,8 segundos) y el robot deje algo de espacio con los obstáculos.
 
-![\label{willow2} El robot sortea los obstáculos del camino](img/willow_2.png)
+\begin{figure}[hbtp]
+\centering
+\includegraphics[width=0.7\textwidth]{img/willow_2.png}
+\caption{\label{willow2} El robot sortea los obstáculos del camino}
+\end{figure}
 
 Por último, se muestra en la Figura \ref{willow3} que el robot alcanza su objetivo con éxito.
 
@@ -84,20 +88,44 @@ El mapa *autolab* es relativamente sencillo al no tener apenas obstáculos, como
 
 ![\label{autolab1} El robot en su pose inicial](img/autolab_1.png)
 
-![\label{autolab2} El robot se dirige el objetivo evadiendo celdas ilegales](img/autolab_2.png)
+\begin{figure}[hbtp]
+\centering
+\includegraphics[width=0.7\textwidth]{img/autolab_2.png}
+\caption{\label{autolab2} El robot se dirige el objetivo evadiendo celdas ilegales}
+\end{figure}
+\begin{figure}[hbtp]
+\centering
+\includegraphics[width=0.7\textwidth]{img/autolab_3.png}
+\caption{\label{autolab3} El robot alcanza el objetivo}
+\end{figure}
 
-![\label{autolab3} El robot alcanza el objetivo](img/autolab_3.png)
 
 ## simple_rooms
 
 El mapa *simple_rooms* como el anterior carece de obstáculos, pero al ser habitaciones cerradas con una única salida y tener también una resolución mayor que el *willow* es posible que no encuentre un camino por falta de capacidad. En este caso se ha probado a avanzar con el robot dando objetivos cercanos sin muchos obstáculos o con obstáculos que pueden evitarse fácilmente, de esta manera el algoritmo encuentra soluciones con bastante rapidez como podemos ver en las figuras \ref{simple2} y \ref{simple3}, sin embargo una vez nos hemos avanzado lo suficiente, probamos a darle un objetivo cercano pero obstaculizado por las paredes como en la figura \ref{simple4}, como podemos observar en la última figura \ref{simple5}. No es posible encontrar un plan debido a la resolución actual del mapa y su forma ya que excede la capacidad.
 
-![\label{simple1} El robot en su pose inicial](img/simple_1.png)
-
-![\label{simple2} El robot alcanza un objetivo cercano](img/simple_2.png)
-
-![\label{simple3} El robot alcanza el objetivo cercano](img/simple_3.png)
-
-![\label{simple4} Se envia objetivo obstaculizado al robot](img/simple_4.png)
-
-![\label{simple5} No se encuentra plan para el robot](img/simple_5.png)
+\begin{figure}[hbtp]
+\centering
+\includegraphics[width=0.7\textwidth]{img/simple_1.png}
+\caption{\label{simple1} El robot en su pose inicial}
+\end{figure}
+\begin{figure}[hbtp]
+\centering
+\includegraphics[width=0.7\textwidth]{img/simple_2.png}
+\caption{\label{simple2} El robot alcanza un objetivo cercano}
+\end{figure}
+\begin{figure}[hbtp]
+\centering
+\includegraphics[width=0.7\textwidth]{img/simple_3.png}
+\caption{\label{simple3} El robot alcanza el objetivo cercano}
+\end{figure}
+\begin{figure}[hbtp]
+\centering
+\includegraphics[width=0.7\textwidth]{img/simple_4.png}
+\caption{\label{simple4} Se envia objetivo obstaculizado al robot}
+\end{figure}
+\begin{figure}[hbtp]
+\centering
+\includegraphics[width=0.7\textwidth]{img/simple_5.png}
+\caption{\label{simple5} No se encuentra plan para el robot}
+\end{figure}

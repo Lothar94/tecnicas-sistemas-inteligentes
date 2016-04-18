@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(my_astar_planner)
+project(subgrupo2_5_entrega3)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --std=c++11")
 
 ## Find catkin macros and libraries
@@ -116,7 +116,7 @@ add_definitions(${PCL_DEFINITIONS})
 # add_library(my_astar_planner
 #   src/${PROJECT_NAME}/my_astar_planner.cpp
 # )
-add_library(my_astar_planner
+add_library(subgrupo2_5_entrega3
    src/myAstarPlanner.cpp
  )
 
@@ -128,7 +128,7 @@ add_library(my_astar_planner
 # add_dependencies(my_astar_planner_node my_astar_planner_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(my_astar_planner
+target_link_libraries(subgrupo2_5_entrega3
  ${catkin_LIBRARIES}
 )
 
